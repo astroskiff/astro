@@ -4,8 +4,7 @@
 #include <string>
 #include <string_view>
 
-namespace cli
-{
+namespace cli {
 
 //! \brief Create a new binary project
 //! \param name The name of the new project
@@ -41,9 +40,10 @@ extern bool test_project(std::string_view name);
 //! \param name The name of the binary
 //! \param arguments Arguments to pass to the binary
 //! \returns true iff the binary was executed successfully
-extern bool execute_binary(std::string_view name, std::vector<std::string> arguments);
+extern bool execute_binary(std::string_view name, std::vector<std::string>
+arguments);
 
 */
-}
+} // namespace cli
 
-#endif 
+#endif

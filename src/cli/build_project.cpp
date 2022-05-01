@@ -2,13 +2,11 @@
 
 #include <iostream>
 
-namespace cli
-{
+namespace cli {
 
-bool build_project(std::string_view name)
-{
+bool build_project(std::string_view name) {
   std::cout << "Asked to build : " << name << std::endl;
   return false;
 }
 
-}
+} // namespace cli

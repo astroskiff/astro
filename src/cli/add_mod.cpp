@@ -2,13 +2,11 @@
 
 #include <iostream>
 
-namespace cli
-{
+namespace cli {
 
-bool add_mod(std::string_view name)
-{
+bool add_mod(std::string_view name) {
   std::cout << "Asked to add mod : " << name << std::endl;
   return false;
 }
 
-}
+} // namespace cli

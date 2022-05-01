@@ -3,14 +3,12 @@
 
 #include <cstdint>
 
-namespace error
-{
+namespace error {
 
 namespace cli {
-  static constexpr uint16_t INVALID_COMMAND = 0;
+static constexpr uint16_t INVALID_COMMAND = 0;
 }
 
-
-}
+} // namespace error
 
 #endif

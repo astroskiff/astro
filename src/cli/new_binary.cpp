@@ -1,15 +1,13 @@
 #include "cli.hpp"
 #include "project/project.hpp"
 
-#include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
-namespace cli
-{
+namespace cli {
 
-bool new_binary(std::string_view name)
-{
+bool new_binary(std::string_view name) {
   std::cout << "Create a new binary named : " << name << std::endl;
 
   if (std::filesystem::is_directory(name)) {
@@ -38,12 +36,11 @@ bool new_binary(std::string_view name)
     return false;
   }
 
-
   {
     std::fstream out;
     out.open(root_path.string(), std::fstream::out | std::fstream::trunc);
     if (!out.is_open()) {
-      std::cerr << "Unable to create " <<  root_path << std::endl;
+      std::cerr << "Unable to create " << root_path << std::endl;
       return false;
     }
     out.close();
@@ -55,7 +52,7 @@ bool new_binary(std::string_view name)
     std::fstream out;
     out.open(src_file.string(), std::fstream::out | std::fstream::trunc);
     if (!out.is_open()) {
-      std::cerr << "Unable to create " <<  src_file << std::endl;
+      std::cerr << "Unable to create " << src_file << std::endl;
       return false;
     }
     out.close();
@@ -75,4 +72,4 @@ bool new_binary(std::string_view name)
   return project::write_project(name, project);
 }
 
-}
+} // namespace cli

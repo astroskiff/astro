@@ -4,8 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace error
-{
+namespace error {
 
 //! \brief Manager for raising and counting errors
 class manager_c {
@@ -16,7 +15,8 @@ public:
   //! \param reporter The module that the error came from
   //! \param error_number The number to raise
   //! \param display Optional text to display along with error message
-  void raise(std::string_view reporter, uint16_t error_number, std::string_view display);
+  void raise(std::string_view reporter, uint16_t error_number,
+             std::string_view display);
 
   //! \brief Retrieve the number of errors generated
   uint64_t get_num_errors() const { return _num_errors; }
@@ -26,6 +26,6 @@ private:
   std::unordered_map<uint16_t, std::string> _error_map;
 };
 
-}
+} // namespace error
 
 #endif

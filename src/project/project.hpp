@@ -1,14 +1,14 @@
 #ifndef ASTRO_PROJECT_HPP
 #define ASTRO_PROJECT_HPP
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <optional>
 
 namespace project {
 
-//! \brief Package information 
+//! \brief Package information
 struct package_t {
   std::vector<std::string> authors;
   std::string title;
@@ -40,6 +40,10 @@ extern std::optional<astro_project_t> load_project(std::string_view path);
 //! \param project The project information to write out
 extern bool write_project(std::string_view path, const astro_project_t project);
 
-}
+//! \brief Display the contents of a project
+//! \param project The project item to dump
+extern void dump_project_contents(const astro_project_t &project);
+
+} // namespace project
 
 #endif
