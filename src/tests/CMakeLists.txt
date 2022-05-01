@@ -9,7 +9,7 @@ include_directories(
 )
 
 add_executable(astro_unit_tests
-        ${PROJECT_SOURCES}
+        ${ASTRO_SOURCES}
         example.cpp
         main.cpp)
 

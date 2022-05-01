@@ -6,21 +6,16 @@
 
 namespace cli {
 
-//! \brief Create a new binary project
+//! \brief Create a new project
 //! \param name The name of the new project
-//! \returns true iff the binary project could be created
-[[nodiscard]] extern bool new_binary(std::string_view name);
+//! \returns true iff the project could be created
+[[nodiscard]] extern bool new_project(std::string_view name);
 
 //! \brief Create a module within a project
 //! \param project The name of the project
 //! \param module The name of the new module
 //! \returns true iff the module could be created within the project
 extern bool add_mod(std::string_view project, std::string_view module);
-
-//! \brief Build project
-//! \param name The name of the project
-//! \returns true iff the project was built successfully
-extern bool build_project(std::string_view name);
 
 /*
 
