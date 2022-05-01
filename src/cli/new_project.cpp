@@ -7,9 +7,7 @@
 
 namespace cli {
 
-bool new_binary(std::string_view name) {
-  std::cout << "Create a new binary named : " << name << std::endl;
-
+bool new_project(std::string_view name) {
   if (std::filesystem::is_directory(name)) {
     std::cerr << "Directory already exists with name : " << name << std::endl;
     return false;
@@ -48,7 +46,7 @@ bool new_binary(std::string_view name) {
 
   {
     auto src_file = src_path;
-    src_file /= project_title.string() + ".ast";
+    src_file /= "main.ast";
     std::fstream out;
     out.open(src_file.string(), std::fstream::out | std::fstream::trunc);
     if (!out.is_open()) {

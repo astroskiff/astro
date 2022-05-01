@@ -1,9 +1,9 @@
 
 Compiled language - with the cli able to do project management and tests
 
-Create a binary project directory
+Create a project directory
 ```
-astro new bin my_proj
+astro new app my_proj
 ```
 
 Add module to binary
