@@ -1,4 +1,13 @@
 
+container<i64, i64>:fixed complex;
+
+//  Idea for future 
+//
+//impl complex::operator+ (other: complex) {
+//
+//} 
+
+
 fn add(lhs:u64, rhs:u64) -> u64 {
   return lhs + rhs;
 }

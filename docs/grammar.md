@@ -19,7 +19,10 @@
 <struct-definition-block> := <identifier> ':' <identifier> ';'
                            | <struct-definition-block> <identifier> ':' <identifier> ';'
 
-<container-statement> := 'container' '<' <identifier> '>' ':' <container-sizing> <identifier> ';'
+<container-statement> := 'container' '<' <identifier-list> '>' ':' <container-sizing> <identifier> ';'
+
+<identifier-list> := <identifier>
+                   | <identifier-list> ',' <identifer>
 
 <container-sizing> := 'fixed'
                     | 'variable'
