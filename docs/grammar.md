@@ -2,9 +2,9 @@
 
 <entry> := <use-statement>
          | <import-statement>
-         | <function-statement>
-         | <struct-statement>
-         | <container-statement>
+         | [pub] <function-statement>
+         | [pub] <struct-statement>
+         | [pub] <container-statement>
 
 <use-statement> := 'use' <identifier> ';'
                  | <use-statement> 'use' <identifer> ';'
@@ -14,7 +14,7 @@
 
 <function-statement> := 'fn' <identifier> '(' <parameter-declaration> ')' '->' <identifer> <statement-block>
 
-<struct-statement> := 'struct' <identifer> '{' [<struct-definition-block>] '}' 
+<struct-statement> := 'struct' <identifer> '{' [<struct-definition-block>] '}' ';'
 
 <struct-definition-block> := <identifier> ':' <identifier> ';'
                            | <struct-definition-block> <identifier> ':' <identifier> ';'

@@ -21,8 +21,8 @@ void dump_project_contents(const astro_project_t &project) {
   }
 
   std::cout << "\n---- Binary Information ----"
-            << "\nName:\t" << project.bin.name
-            << "\nEntry:\t" << project.bin.entry << std::endl;
+            << "\nName:\t" << project.bin.name << "\nEntry:\t"
+            << project.bin.entry << std::endl;
 
   if (!project.bin.modules.empty()) {
     std::cout << "Modules: " << std::endl;

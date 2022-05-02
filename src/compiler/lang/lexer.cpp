@@ -24,6 +24,7 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["container"] = token_e::CONTAINER;
   _reserved["fixed"] = token_e::C_FIXED;
   _reserved["variable"] = token_e::C_VARIABLE;
+  _reserved["pub"] = token_e::PUB;
 }
 
 void lexer_c::clear() {

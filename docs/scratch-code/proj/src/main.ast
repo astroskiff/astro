@@ -1,0 +1,17 @@
+
+// Import essentially copy/pastes the contents into this file
+import "math.ast"
+
+// 'Use' will only bring in public items, and things must be
+// scoped using the module name 
+use foo;
+
+
+fn main() -> i8 {
+
+  // No scoping for import
+  let result : u64 = add(7, 3);
+
+  
+  let c : foo::coords = { 10, 10 };
+}

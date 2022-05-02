@@ -75,6 +75,7 @@ enum class token_e {
   CONTAINER,
   C_FIXED,
   C_VARIABLE,
+  PUB,
   ERT, // Error token
   EOS  // End of stream
 };
@@ -296,6 +297,9 @@ static std::string token_to_str(const td_pair_t &td) {
   case token_e::C_VARIABLE:
     return "C_VARIABLE[" + std::to_string(td.line) + ", " +
            std::to_string(td.col) + "]";
+  case token_e::PUB:
+    return "PUB[" + std::to_string(td.line) + ", " + std::to_string(td.col) +
+           "]";
   case token_e::ERT:
     return "ERT";
   }
