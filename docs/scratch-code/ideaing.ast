@@ -1,0 +1,60 @@
+
+
+
+```
+
+Base types:
+
+u8 u16 u32 u64
+i8 i16 i32 i64 
+float 
+
+
+use mod_name; // Project mods scanned first, fallback is system modules
+
+container<u8>:fixed bool;
+container<u8>:variable string;
+container<u16>:variable u16_string; 
+
+// Idea is to have base type called "container" that has a base, underlying type speceified bu `<>` and 
+// a length designator that follows `:` to declare if the container is fixed or variable in length.
+// We could then have standard operations that can apply to any 'container' type 
+//  - Leave out nesting containers until idea is ironed out
+
+fn add_one(u8:x) -> u8 {
+  return x+1;
+}
+
+fn main() -> i8 {
+
+  //  "Strings" are interpreted as a list of u8s so 
+  //
+  let x : string = "Hello";
+
+  append(x, " world");    // Hello world
+  insert(x, 0, "J");      // Jello world
+  clear(x);
+  reverse(x);
+  map(add_one, x);
+
+  x = "Something else"; 
+
+
+  let y: *u8 = allocate(sizeof(u8) * 100);
+
+  y[15] = 3;
+
+  free(y);      // Free the memory
+  drop(y);      // Free the symbol `y`
+
+
+  let p *u8 = &x; // Get the current address of x
+
+  p[0] = "K";   // Kello World
+
+
+  return 0;
+}
+
+
+```
