@@ -31,8 +31,16 @@ conversion_e check_conversion(base_type_c *from, base_type_c *to) {
           to_container->contained_types[i] == type_e::CONTAINER) {
         return conversion_e::INVALID;
       }
+      // if (from_container->contained_types[i] !=
+      // to_container->contained_types[i]) {
+      //   return conversion_e::INVALID;
+      // }
     }
     return conversion_e::INDIRECT;
+  }
+
+  if (from_type == type_e::STRUCT || to_type == type_e::STRUCT) {
+    return conversion_e::INVALID;
   }
 
   if (from_type == type_e::CONTAINER) {

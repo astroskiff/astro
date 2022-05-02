@@ -1,22 +1,34 @@
 #ifndef COMPILER_LANG_TYPES_HPP
 #define COMPILER_LANG_TYPES_HPP
 
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace compiler {
 namespace lang {
 namespace types {
 
-enum class type_e { U8 = 2,  U16 = 8,   U32 = 14,  U64 = 20, 
-                    I8 = 4,  I16 = 10,  I32 = 16,  I64 = 22,
-                    FLOAT = 50, CONTAINER = 100 };
+enum class type_e {
+  U8 = 2,
+  U16 = 8,
+  U32 = 14,
+  U64 = 20,
+  I8 = 4,
+  I16 = 10,
+  I32 = 16,
+  I64 = 22,
+  FLOAT = 50,
+  CONTAINER = 100,
+  STRUCT = 101
+};
 
 enum class container_variant_e { FIXED, VARIABLE };
 
 enum class conversion_e {
-  TRUNCATE = 0,     // Convert through truncation
-  DIRECT,       // Convert directly 
+  TRUNCATE = 0, // Convert through truncation
+  DIRECT,       // Convert directly
   INDIRECT,     // Convert indirectly (container type)
   PROMOTION,    // Promote to type
   INVALID       // Invalid conversion
@@ -31,6 +43,7 @@ public:
   std::string name;
   type_e type;
 };
+using base_type_ptr = std::unique_ptr<base_type_c>;
 
 class container_c : public base_type_c {
 public:
@@ -40,6 +53,14 @@ public:
         contained_types(contained_types), variant(variant) {}
   std::vector<type_e> contained_types;
   container_variant_e variant;
+};
+
+class struct_c : public base_type_c {
+public:
+  struct_c(const std::unordered_map<std::string, type_e> &member_types)
+      : base_type_c("struct", type_e::STRUCT), member_types(member_types) {}
+
+  std::unordered_map<std::string, type_e> member_types;
 };
 
 class u8_c : public base_type_c {
@@ -79,16 +100,15 @@ public:
 
 class i64_c : public base_type_c {
 public:
- i64_c() : base_type_c("i64", type_e::I64) {}
+  i64_c() : base_type_c("i64", type_e::I64) {}
 };
 
 class float_c : public base_type_c {
 public:
- float_c() : base_type_c("float", type_e::FLOAT) {}
+  float_c() : base_type_c("float", type_e::FLOAT) {}
 };
 
 extern conversion_e check_conversion(base_type_c *from, base_type_c *to);
-
 
 } // namespace types
 } // namespace lang
