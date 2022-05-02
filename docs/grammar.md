@@ -39,7 +39,11 @@ statements := <assignment>
             | <return-statement>
             | <expression>
 
-<assignment> := 'let' <identifier> ':' <identifier> ['*'] '=' <expression> ';'
+<assignment> := 'let' <identifier> ':' <identifier> [<literal-accessor>+] '=' <expression> ';'
+
+<literal-accessor> := '[' <number> ']'
+
+<expression-accessor> := '[' <expression> ']'
 
 <if-statement> := 'if' <conditional> <statement-block> [<else-if>+] [<else>]
 
@@ -89,7 +93,7 @@ statements := <assignment>
           | '*' <expression>
           | '%' <expression>
           | <call-expr>
-          | <expr-accessors>
+          | <expression-accessor>
 
 <call-expr> := <identifier> '(' [<call_parameter_list>] ')' 
 
