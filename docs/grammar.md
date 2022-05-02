@@ -1,12 +1,16 @@
 ```
 
-<entry> := <use>
+<entry> := <use-statement>
+         | <import-statement>
          | <function-statement>
          | <struct-statement>
          | <container-statement>
 
-<use> := 'use' <identifier>
-      | <use> 'use' <identifer>
+<use-statement> := 'use' <identifier> ';'
+                 | <use-statement> 'use' <identifer> ';'
+
+<import-statement> := 'import' <string> ';'
+                    | <import-statement> 'import' <string> ';'
 
 <function-statement> := 'fn' <identifier> '(' <parameter-declaration> ')' '->' <identifer> <statement-block>
 

@@ -44,8 +44,7 @@ fn main() -> i8 {
 
   y[15] = 3;
 
-  free(y);      // Free the memory
-  drop(y);      // Free the symbol `y`
+  free(y);      // Free the memoryß
 
 
   let p *u8 = &x; // Get the current address of x

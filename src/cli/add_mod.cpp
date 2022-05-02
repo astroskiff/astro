@@ -61,7 +61,7 @@ bool add_mod(std::string_view project, std::string_view mod) {
     return false;
   }
 
-  std::cout << "New module '" << mod << "' was added to project '" << project
+  std::cout << "New module '" << mod << "' was added to project '" << project << "'"
             << std::endl;
   return true;
 }

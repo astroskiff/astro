@@ -20,7 +20,7 @@ struct package_t {
 //! \brief Binary information
 struct bin_t {
   std::string name;
-  std::string path;
+  std::string entry;
   std::vector<std::string> modules;
 };
 
