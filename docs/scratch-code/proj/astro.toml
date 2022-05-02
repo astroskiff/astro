@@ -1,0 +1,11 @@
+[bin]                                                                                                                                                                                          
+entry = 'fib/src/main.ast'    
+modules = [ 'foo' ]    
+name = 'fib'
+    
+[package]    
+authors = [ 'Josh Bosley' ]    
+description = 'demo'    
+license = 'MIT'    
+title = 'fib'    
+version = '0.1.0'

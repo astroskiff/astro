@@ -21,8 +21,8 @@ void dump_project_contents(const astro_project_t &project) {
   }
 
   std::cout << "\n---- Binary Information ----"
-            << "\nName:\t" << project.bin.name << "\nPath:\t"
-            << project.bin.path << std::endl;
+            << "\nName:\t" << project.bin.name << "\nEntry:\t"
+            << project.bin.entry << std::endl;
 
   if (!project.bin.modules.empty()) {
     std::cout << "Modules: " << std::endl;
@@ -116,23 +116,23 @@ std::optional<astro_project_t> load_project(std::string_view path) {
     }
   }
 
-  // Path
-  std::optional<std::string_view> bin_path =
-      toml_project["bin"]["path"].value<std::string_view>();
-  if (bin_path == std::nullopt) {
-    std::cerr << "Error: binary path not given" << std::endl;
-    return std::nullopt;
-  }
-  project.bin.path = *bin_path;
-
   // Name
   std::optional<std::string_view> bin_name =
       toml_project["bin"]["name"].value<std::string_view>();
   if (bin_name == std::nullopt) {
-    std::cerr << "Error: binary path not given" << std::endl;
+    std::cerr << "Error: binary name not given" << std::endl;
     return std::nullopt;
   }
   project.bin.name = *bin_name;
+
+  // Entry
+  std::optional<std::string_view> bin_entry =
+      toml_project["bin"]["entry"].value<std::string_view>();
+  if (bin_name == std::nullopt) {
+    std::cerr << "Error: binary entry not given" << std::endl;
+    return std::nullopt;
+  }
+  project.bin.entry = *bin_entry;
 
   return project;
 }
@@ -145,10 +145,14 @@ bool write_project(std::string_view path, const astro_project_t project) {
     }
   }
 
-  if (!std::filesystem::is_directory(project.bin.path)) {
-    if (!std::filesystem::create_directories(project.bin.path)) {
-      std::cerr << "Unable to create path : " << project.bin.path << std::endl;
-      return false;
+  {
+    std::filesystem::path p = project.bin.entry;
+    p = p.parent_path();
+    if (!std::filesystem::is_directory(p)) {
+      if (!std::filesystem::create_directories(p)) {
+        std::cerr << "Unable to create path : " << p << std::endl;
+        return false;
+      }
     }
   }
 
@@ -178,7 +182,7 @@ bool write_project(std::string_view path, const astro_project_t project) {
                               {"version", project.package.version}}},
 
       {"bin", toml::table{{"name", project.bin.name},
-                          {"path", project.bin.path},
+                          {"entry", project.bin.entry},
                           {"modules", modules}}
 
       }};

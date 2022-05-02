@@ -44,15 +44,16 @@ bool new_project(std::string_view name) {
     out.close();
   }
 
+  auto src_file = src_path;
+  src_file /= "main.ast";
   {
-    auto src_file = src_path;
-    src_file /= "main.ast";
     std::fstream out;
     out.open(src_file.string(), std::fstream::out | std::fstream::trunc);
     if (!out.is_open()) {
       std::cerr << "Unable to create " << src_file << std::endl;
       return false;
     }
+    out << "// main.ast";
     out.close();
   }
 
@@ -65,7 +66,7 @@ bool new_project(std::string_view name) {
   project.package.version = "0.0.0";
 
   project.bin.name = project_title;
-  project.bin.path = src_path.string();
+  project.bin.entry = src_file.string();
 
   return project::write_project(name, project);
 }

@@ -1,0 +1,5 @@
+
+pub struct coord {
+  u64 x;
+  u64 y;
+};

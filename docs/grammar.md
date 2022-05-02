@@ -1,21 +1,28 @@
 ```
 
-<entry> := <use>
-         | <function-statement>
-         | <struct-statement>
-         | <container-statement>
+<entry> := <use-statement>
+         | <import-statement>
+         | [pub] <function-statement>
+         | [pub] <struct-statement>
+         | [pub] <container-statement>
 
-<use> := 'use' <identifier>
-      | <use> 'use' <identifer>
+<use-statement> := 'use' <identifier> ';'
+                 | <use-statement> 'use' <identifer> ';'
+
+<import-statement> := 'import' <string> ';'
+                    | <import-statement> 'import' <string> ';'
 
 <function-statement> := 'fn' <identifier> '(' <parameter-declaration> ')' '->' <identifer> <statement-block>
 
-<struct-statement> := 'struct' <identifer> '{' [<struct-definition-block>] '}' 
+<struct-statement> := 'struct' <identifer> '{' [<struct-definition-block>] '}' ';'
 
 <struct-definition-block> := <identifier> ':' <identifier> ';'
                            | <struct-definition-block> <identifier> ':' <identifier> ';'
 
-<container-statement> := 'container' '<' <identifier> '>' ':' <container-sizing> <identifier> ';'
+<container-statement> := 'container' '<' <identifier-list> '>' ':' <container-sizing> <identifier> ';'
+
+<identifier-list> := <identifier>
+                   | <identifier-list> ',' <identifer>
 
 <container-sizing> := 'fixed'
                     | 'variable'
@@ -32,7 +39,11 @@ statements := <assignment>
             | <return-statement>
             | <expression>
 
-<assignment> := 'let' <identifier> ':' <identifier> ['*'] '=' <expression> ';'
+<assignment> := 'let' <identifier> ':' <identifier> [<literal-accessor>+] '=' <expression> ';'
+
+<literal-accessor> := '[' <number> ']'
+
+<expression-accessor> := '[' <expression> ']'
 
 <if-statement> := 'if' <conditional> <statement-block> [<else-if>+] [<else>]
 
@@ -82,7 +93,7 @@ statements := <assignment>
           | '*' <expression>
           | '%' <expression>
           | <call-expr>
-          | <expr-accessors>
+          | <expression-accessor>
 
 <call-expr> := <identifier> '(' [<call_parameter_list>] ')' 
 

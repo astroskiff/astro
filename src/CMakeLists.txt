@@ -49,6 +49,8 @@ set(CLI_SOURCES
 
 set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lang/lexer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lang/types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/errors/error_manager.cpp
 )
 

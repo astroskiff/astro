@@ -37,21 +37,9 @@ fn main() -> i8 {
   reverse(x);
   map(add_one, x);
 
-  x = "Something else"; 
+  let array : u8 [100] = { };
 
-
-  let y: *u8 = allocate(sizeof(u8) * 100);
-
-  y[15] = 3;
-
-  free(y);      // Free the memory
-  drop(y);      // Free the symbol `y`
-
-
-  let p *u8 = &x; // Get the current address of x
-
-  p[0] = "K";   // Kello World
-
+  array[0] = 33;
 
   return 0;
 }
