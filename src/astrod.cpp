@@ -3,6 +3,8 @@
 
 #include "cli/cli.hpp"
 #include "compiler/compiler.hpp"
+#include "defines.hpp"
+#include "external/aixlog.hpp"
 #include "project/project.hpp"
 
 int do_show_usage(const std::string &name) {
@@ -132,6 +134,19 @@ int do_build(std::vector<std::string> args) {
 }
 
 int main(int argc, char **argv) {
+
+  //  Setup some debug output if DEBUG_OUTPUT is enabled (defines.hpp)
+  //
+  if (DEBUG_OUTPUT) {
+    auto sink_cout = std::make_shared<AixLog::SinkCout>(
+        AixLog::Severity::debug, "[#severity] (#tag) #message");
+    auto sink_file = std::make_shared<AixLog::SinkFile>(
+        AixLog::Severity::debug, "astro.log",
+        "%Y-%m-%d %H-%M-%S.#ms | [#severity] (#tag) #message");
+    AixLog::Log::init({sink_cout, sink_file});
+  } else {
+    AixLog::Log::init<AixLog::SinkCout>(AixLog::Severity::fatal);
+  }
 
   std::vector<std::string> args(argv, argv + argc);
 

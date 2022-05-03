@@ -1,14 +1,14 @@
 #ifndef COMPILER_LANG_ASTRO_HPP
 #define COMPILER_LANG_ASTRO_HPP
 
-#include "types.hpp"
 #include "tokens.hpp"
+#include "types.hpp"
 #include <string>
 
 namespace compiler {
 namespace lang {
 
-// Forward for item that will reciece instruction objects 
+// Forward for item that will reciece instruction objects
 // to generate them
 class instruction_receiver_c;
 
@@ -20,35 +20,38 @@ class expression_c;
  * expression trees this method will display the expression trees horizontally
  * via stdout
  */
-extern void display_expr_tree(const std::string &prefix, expression_c *n, bool is_left);
+extern void display_expr_tree(const std::string &prefix, expression_c *n,
+                              bool is_left);
 
 class variable_c {
 public:
-  variable_c(const std::string &name, base_type_ptr base_type) : name(name), base_type(base_type){}
+  variable_c(const std::string &name, types::base_type_ptr base_type)
+      : name(name), base_type(std::move(base_type)) {}
   std::string name;
-  base_type_ptr base_type;
+  types::base_type_ptr base_type;
 };
 using variable_ptr = std::unique_ptr<variable_c>;
 
 class struct_def_c {
 public:
-  struct_def_c(const std::string &name, std::unordered_map<std::string, types::type_e>& members): 
-    name(name), members(members) { }
+  struct_def_c(const std::string &name,
+               std::unordered_map<std::string, types::type_e> &members)
+      : name(name), members(members) {}
   std::string name;
   std::unordered_map<std::string, types::type_e> members;
 
-  void add_members(const std::string& name, types::type_e type) {
+  void add_members(const std::string &name, types::type_e type) {
     members[name] = type;
   }
 
-  bool has_member(const std::string& name) {
+  bool has_member(const std::string &name) {
     return members.find(name) != members.end();
   }
 };
 
 class location_c {
 public:
-  location_c() : line(0), col(0){}
+  location_c() : line(0), col(0) {}
   location_c(std::size_t line, std::size_t col) : line(line), col(col) {}
   std::size_t line;
   std::size_t col;
@@ -73,14 +76,12 @@ public:
   expression_c() : type(expression_node_type_e::ROOT) {}
   expression_c(expression_node_type_e t) : type(t) {}
   expression_c(const location_c &location, expression_node_type_e t)
-      : location(location), type(t)
-  {
-  }
-  expression_c(expression_node_type_e t, std::string val) : type(t), value(val) {}
-  expression_c(const location_c &location, expression_node_type_e t, std::string val)
-      : location(location), type(t), value(val)
-  {
-  }
+      : location(location), type(t) {}
+  expression_c(expression_node_type_e t, std::string val)
+      : type(t), value(val) {}
+  expression_c(const location_c &location, expression_node_type_e t,
+               std::string val)
+      : location(location), type(t), value(val) {}
   virtual ~expression_c() = default;
 
   location_c location;
@@ -91,25 +92,25 @@ using expression_ptr = std::unique_ptr<expression_c>;
 
 class raw_integer_expression_c : public expression_c {
 public:
-  raw_integer_expression_c(const location_c &location, const std::string& string_value)
-      : expression_c(location, expression_node_type_e::RAW_NUMBER, string_value)
-  {
-  }
-  raw_integer_expression_c(location_c location, const std::string& string_value, long long raw_value)
-      : expression_c(location, expression_node_type_e::RAW_NUMBER, string_value), integer_value(raw_value)
-  {
-  }
+  raw_integer_expression_c(const location_c &location,
+                           const std::string &string_value)
+      : expression_c(location, expression_node_type_e::RAW_NUMBER,
+                     string_value) {}
+  raw_integer_expression_c(location_c location, const std::string &string_value,
+                           long long raw_value)
+      : expression_c(location, expression_node_type_e::RAW_NUMBER,
+                     string_value),
+        integer_value(raw_value) {}
   long long integer_value{0};
 };
-using raw_integer_expression_c = std::unique_ptr<raw_integer_expression_c>;
+using raw_integer_expression_ptr = std::unique_ptr<raw_integer_expression_c>;
 
 class prefix_expression_c : public expression_c {
 public:
-  prefix_expression_c(const location_c &location, const std::string &op, expression_ptr right)
+  prefix_expression_c(const location_c &location, const std::string &op,
+                      expression_ptr right)
       : expression_c(location, expression_node_type_e::PREFIX), op(op),
-        right(std::move(right))
-  {
-  }
+        right(std::move(right)) {}
   std::string op;
   expression_ptr right;
 };
@@ -117,12 +118,10 @@ using prefix_expr_ptr = std::unique_ptr<prefix_expression_c>;
 
 class infix_expression_c : public expression_c {
 public:
-  infix_expression_c(const location_c &location, const std::string &op, expression_ptr left,
-             expression_ptr right)
-      : expression_c(location, expression_node_type_e::INFIX), op(op), left(std::move(left)),
-        right(std::move(right))
-  {
-  }
+  infix_expression_c(const location_c &location, const std::string &op,
+                     expression_ptr left, expression_ptr right)
+      : expression_c(location, expression_node_type_e::INFIX), op(op),
+        left(std::move(left)), right(std::move(right)) {}
 
   std::string op;
   expression_ptr left;
@@ -137,19 +136,19 @@ using infix_expression_ptr = std::unique_ptr<infix_expression_c>;
 class instruction_c {
 public:
   instruction_c() = delete;
-  instruction_c(const location_c& loc) : location(location) {}
+  virtual ~instruction_c() = default;
+  instruction_c(const location_c &loc) : location(loc) {}
   location_c location;
-
   virtual void visit(instruction_receiver_c &receiver) = 0;
 };
 using instruction_ptr = std::unique_ptr<instruction_c>;
 
 class assignment_instruction_c : public instruction_c {
 public:
-  assignment_instruction_c(const location_c &location, variable_ptr variable, expression_ptr expression)
-      : instruction_c(location), variable(std::move(variable)), expression(std::move(expression))
-  {
-  }
+  assignment_instruction_c(const location_c &location, variable_ptr variable,
+                           expression_ptr expression)
+      : instruction_c(location), variable(std::move(variable)),
+        expression(std::move(expression)) {}
 
   variable_ptr variable;
   expression_ptr expression;
@@ -179,7 +178,6 @@ public:
   virtual void receive(function_c &instruction) = 0;
   virtual void receive(assignment_instruction_c &instruction) = 0;
 };
-
 
 } // namespace lang
 } // namespace compiler

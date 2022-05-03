@@ -1,7 +1,6 @@
 #ifndef COMPILER_CONTEXT_HPP
 #define COMPILER_CONTEXT_HPP
 
-#include "lang/tokens.hpp"
 #include "scope.hpp"
 
 namespace compiler {
@@ -14,12 +13,11 @@ class context_c {
 public:
   context_c(const std::string &name);
 
-
 private:
   std::string _name;
 };
 
-}
+} // namespace context
 } // namespace compiler
 
 #endif

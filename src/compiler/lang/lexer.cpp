@@ -172,6 +172,11 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
       if (peek() == '=') {
         advance();
         _tokens.emplace_back(td_pair_t{token_e::DIV_EQ, "/=", line_no, _idx});
+ 
+      } else if ( peek() == '/' ) {
+        // Eat line - its a comment
+        _idx = _current_line.size();
+        continue;
       } else {
         _tokens.emplace_back(td_pair_t{token_e::DIV, "/", line_no, _idx});
       }
