@@ -39,6 +39,24 @@ std::vector<td_pair_t> read_and_lex_file(const std::string &file) {
 td_pair_t error_token = {token_e::ERT, {}, {0,0}};
 td_pair_t end_of_stream = {token_e::EOS, {}, {0,0}};
 
+
+
+std::unordered_map<token_e, parser_c::precedence_e> precedences = {
+    {token_e::EQ, parser_c::precedence_e::ASSIGN},
+    {token_e::EQ_EQ, parser_c::precedence_e::EQUALS},
+    {token_e::LT, parser_c::precedence_e::LESS_GREATER},
+    {token_e::GT, parser_c::precedence_e::LESS_GREATER},
+    {token_e::LTE, parser_c::precedence_e::LESS_GREATER},
+    {token_e::GTE, parser_c::precedence_e::LESS_GREATER},
+    {token_e::ADD, parser_c::precedence_e::SUM},
+    {token_e::SUB, parser_c::precedence_e::SUM},
+    {token_e::DIV, parser_c::precedence_e::PROD},
+    {token_e::MUL, parser_c::precedence_e::PROD},
+    {token_e::HAT, parser_c::precedence_e::POW},
+    {token_e::OR, parser_c::precedence_e::LOGICAL},
+    {token_e::AND, parser_c::precedence_e::LOGICAL},
+};
+
 }
 
 parser_c::parser_c()
@@ -46,6 +64,27 @@ parser_c::parser_c()
   _statement_functions = {
     std::bind(&parser_c::let_statement, this)
   };
+
+  _prefix_fns[token_e::ID] = &parser_c::identifier;
+  _prefix_fns[token_e::INTEGER] = &parser_c::number;
+  _prefix_fns[token_e::FLOAT] = &parser_c::number;
+  _prefix_fns[token_e::STRING] = &parser_c::str;
+  _prefix_fns[token_e::SUB] = &parser_c::prefix_expr;
+  _prefix_fns[token_e::L_PAREN] = &parser_c::grouped_expr;
+
+  _infix_fns[token_e::ADD] = &parser_c::infix_expr;
+  _infix_fns[token_e::SUB] = &parser_c::infix_expr;
+  _infix_fns[token_e::DIV] = &parser_c::infix_expr;
+  _infix_fns[token_e::MUL] = &parser_c::infix_expr;
+  _infix_fns[token_e::EQ] = &parser_c::infix_expr;
+  _infix_fns[token_e::EQ_EQ] = &parser_c::infix_expr;
+  _infix_fns[token_e::LT] = &parser_c::infix_expr;
+  _infix_fns[token_e::LTE] = &parser_c::infix_expr;
+  _infix_fns[token_e::GT] = &parser_c::infix_expr;
+  _infix_fns[token_e::GTE] = &parser_c::infix_expr;
+  _infix_fns[token_e::OR] = &parser_c::infix_expr;
+  _infix_fns[token_e::AND] = &parser_c::infix_expr;
+  _infix_fns[token_e::HAT] = &parser_c::infix_expr;
 }
 
 void parser_c::prev() { _idx--; }
@@ -68,7 +107,7 @@ const td_pair_t &parser_c::current_td_pair() const
 void parser_c::reset()
 {
   if (_mark > _idx) {
-    //_err.raise(error::parser::INTERNAL_MARK_UNSET);
+    //_err.raise(error::parser_c::INTERNAL_MARK_UNSET);
     _parser_okay = false;
     unset(); // ensure its set to max, not some other num
     return;
@@ -186,11 +225,14 @@ node_c* parser_c::let_statement()
 
   advance();
 
-  auto exp = expression();
+  auto exp = expression(precedence_e::LOWEST);
   if (!exp) {
     die(0, "Invalid expression");
     return nullptr;
   }
+  advance();
+
+  display_expr_tree("", exp);
 
   if(current_td_pair().token != token_e::SEMICOLON) {
     die(0, "Missing ';'");
@@ -205,151 +247,155 @@ node_c* parser_c::let_statement()
   return assignment_node;
 }
 
-
-node_c* parser_c::expression() { 
-  
-  auto current_exp = and_exp();
-  if (!current_exp) {
-    return nullptr;
-  }  
-
-  if (current_td_pair().token == token_e::OR) {
-
-    auto or_node = new node_c(node_type::OR, current_td_pair().location);
-    append_node(or_node, current_exp);
-
-    auto next_exp = expression();
-    if (!next_exp) {
-      free_nodes(or_node);
-      return nullptr;
-    }
-    append_node(or_node, next_exp);
-    return or_node;
-  }
-
-  return current_exp;
-}
-
-node_c* parser_c::and_exp() 
-{ 
-  auto current_exp = not_exp();
-  if (!current_exp) {
-    return nullptr;
-  }  
-
-  if (current_td_pair().token == token_e::AND) {
-
-    auto and_node = new node_c(node_type::AND, current_td_pair().location);
-    append_node(and_node, current_exp);
-
-    auto next_exp = and_exp();
-    if (!next_exp) {
-      free_nodes(and_node);
-      return nullptr;
-    }
-    append_node(and_node, next_exp);
-    return and_node;
-  }
-
-  return current_exp;
-}
-
-node_c* parser_c::not_exp() 
-{ 
-  if (current_td_pair().token == token_e::NOT) {
-    advance();
-    auto not_node = new node_c(node_type::NOT, current_td_pair().location);
-    auto expr = compare_exp();
-    if(!expr) {
-      free_nodes(not_node);
-      return nullptr;
-    }
-    append_node(not_node, expr);
-    return not_node;
-  }
-  return compare_exp();
-}
-
-
-node_c* parser_c::compare_exp() 
-{ 
-  return add_exp(); 
-}
-
-node_c* parser_c::add_exp() 
-{ 
-  auto current_expression = mult_exp();
-  if (!current_expression) {
-    return nullptr;
-  }
-
-  std::cout << token_to_str(current_td_pair()) << std::endl;
-
-  if (current_td_pair().token == token_e::ADD) {
-    auto op_node = new node_c(node_type::ADD, current_td_pair().location, "+");
-    advance();
-    auto next_expression = add_exp();
-    if (!next_expression) {
-      delete op_node;
-      return nullptr;
-    }
-  return current_expression; 
-  }
-
-  if (current_td_pair().token == token_e::SUB) {
-    auto op_node = new node_c(node_type::SUB, current_td_pair().location, "-");
-    advance();
-
-    auto next_expression = add_exp();
-    if (!next_expression) {
-      delete op_node;
-      return nullptr;
-    }
-    return current_expression; 
-
-  }
-
-  return current_expression; 
-}
-
-node_c* parser_c::mult_exp() 
-{ 
-  return negate_exp();
-}
-
-node_c* parser_c::negate_exp() 
-{ 
-  return power_exp();
-}
-node_c* parser_c::power_exp()
-{ 
-  return value(); 
-}
-
-node_c* parser_c::value() 
-{ 
-  /*
-  if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected id");
-    return nullptr;
-  }
-  auto id_node = new node_c(node_type::ID, current_td_pair().location);
-  advance();
-  return id_node;
-  */
-  return constant();
-}
-
-node_c * parser_c::constant()
+parser_c::precedence_e parser_c::peek_precedence()
 {
-  if (current_td_pair().token != token_e::INTEGER) {
-    die(0, "Expected int");
+  if (precedences.find(peek().token) != precedences.end()) {
+    return precedences[peek().token];
+  }
+  return parser_c::precedence_e::LOWEST;
+}
+
+node_c* parser_c::prefix_expr(){
+  std::cout << "prefix" << std::endl;
+  node_c * node = nullptr;
+  switch(current_td_pair().token) {
+    case token_e::SUB:
+      node = new node_c(node_type::SUB, current_td_pair().location, "-");
+    break;
+    default:
+      die(0, "Invalid prefix token hit");
+      return nullptr;
+  }
+  advance();
+  node->right = expression(precedence_e::PREFIX);
+  return node;
+}
+
+
+node_c* parser_c::infix_expr(node_c* left){
+
+  node_c * node = nullptr;
+  switch(current_td_pair().token) {
+    case token_e::ADD:
+  std::cout << "infix - add" << std::endl;
+      node = new node_c(node_type::ADD, current_td_pair().location, "+");
+    break;
+    case token_e::SUB:
+      node = new node_c(node_type::SUB, current_td_pair().location, "-");
+    break;
+    case token_e::DIV:
+      node = new node_c(node_type::ADD, current_td_pair().location, "/");
+    break;
+    case token_e::MUL:
+      node = new node_c(node_type::ADD, current_td_pair().location, "*");
+    break;
+    case token_e::EQ:
+      node = new node_c(node_type::EQ, current_td_pair().location, "=");
+    break;
+    case token_e::EQ_EQ:
+      node = new node_c(node_type::EQ_EQ, current_td_pair().location, "==");
+    break;
+    case token_e::LT:
+      node = new node_c(node_type::LT, current_td_pair().location, "<");
+    break;
+    case token_e::LTE:
+      node = new node_c(node_type::LTE, current_td_pair().location, "<=");
+    break;
+    case token_e::GT:
+      node = new node_c(node_type::GT, current_td_pair().location, ">");
+    break;
+    case token_e::GTE:
+      node = new node_c(node_type::GTE, current_td_pair().location, ">=");
+    break;
+    case token_e::OR:
+      node = new node_c(node_type::OR, current_td_pair().location, "or");
+    break;
+    case token_e::AND:
+      node = new node_c(node_type::AND, current_td_pair().location, "and");
+    break;
+    case token_e::HAT:
+      node = new node_c(node_type::POW, current_td_pair().location, "^");
+    break;
+    default:
+      die(0, "Invalid infix token hit");
+      return nullptr;
+  }
+
+  precedence_e p = precedence_e::LOWEST;
+  if (precedences.find(current_td_pair().token) != precedences.end()) {
+    p = precedences[current_td_pair().token];
+  }
+
+  advance();
+  node->left = left;
+  node->right = expression(p);
+  return node;
+}
+
+
+node_c* parser_c::grouped_expr(){
+  std::cout << "groiuped" << std::endl;
+  advance();
+  auto expr = expression(precedence_e::LOWEST);
+
+  advance();
+  if (current_td_pair().token != token_e::R_PAREN) {
     return nullptr;
   }
-  auto data_node = new node_c(node_type::INTEGER, current_td_pair().location);
-  data_node->data = current_td_pair().data;
-  advance();
-  return data_node;
+  return expr;
+}
+
+node_c* parser_c::expression(precedence_e precedence){
+
+  std::cout << "expr" << std::endl;
+
+  if (_prefix_fns.find(current_td_pair().token) == _prefix_fns.end()) {
+    die(0, "no thing for prefix tok");
+    return nullptr;
+  }
+
+  auto fn = _prefix_fns[current_td_pair().token];
+  auto left = (this->*fn)();
+
+  while (peek().token != token_e::SEMICOLON &&
+         precedence < peek_precedence()) {
+    if (_infix_fns.find(peek().token) == _infix_fns.end()) {
+      return left;
+    }
+    auto i_fn = _infix_fns[peek().token];
+    advance();
+
+    left = (this->*i_fn)(left);
+  }
+  return left;
+}
+
+node_c* parser_c::identifier(){
+  std::cout << "ident" << std::endl;
+
+  return new node_c(node_type::ID, current_td_pair().location, current_td_pair().data);
+}
+
+node_c* parser_c::number(){
+  std::cout << "number" << std::endl;
+  if (current_td_pair().token == token_e::INTEGER) {
+    return new node_c(node_type::INTEGER, current_td_pair().location, current_td_pair().data);
+  }
+  if (current_td_pair().token == token_e::FLOAT) {
+    return new node_c(node_type::FLOAT, current_td_pair().location, current_td_pair().data);
+  }
+  die(0, "Expected numerical value");
+  return nullptr;
+}
+
+node_c* parser_c::str(){
+
+  std::cout << "str" << std::endl;
+  if (current_td_pair().token == token_e::STRING) {
+    return new node_c(node_type::STRING, current_td_pair().location, current_td_pair().data);
+  }
+  die(0, "Expected string");
+  return nullptr;
 }
 
 }

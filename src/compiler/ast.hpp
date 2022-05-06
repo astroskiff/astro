@@ -28,7 +28,15 @@ enum class node_type
   FLOAT,
   OR,
   AND,
-  NOT
+  NOT,
+  EQ,
+  EQ_EQ,
+  LT,
+  LTE,
+  GT,
+  GTE,
+  POW,
+  STRING
 };
 
 class location_c {

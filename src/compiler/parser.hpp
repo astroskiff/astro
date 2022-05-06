@@ -12,6 +12,19 @@ namespace compiler {
 
 class parser_c {
 public:
+
+  enum class precedence_e {
+    LOWEST,
+    ASSIGN,       // =
+    LOGICAL,      // || && 
+    EQUALS,       // ==
+    LESS_GREATER, // > <
+    SUM,          // +
+    PROD,         // *
+    POW,          // ^
+    PREFIX,       // -a or !a
+  };
+
   parser_c();
   std::vector<node_c*> parse_file(const std::string &file);
 
@@ -19,6 +32,9 @@ public:
   void mark_parsing_module() { _parsing_module = true; }
 
 private:
+  typedef node_c* (parser_c::*prefix_parse_fn)();
+  typedef node_c* (parser_c::*infix_parse_fn)(node_c*);
+
   std::size_t _idx{0};
   std::size_t _mark{0};
   bool _parser_okay{true};
@@ -40,16 +56,19 @@ private:
 
   node_c* statement();
   node_c* let_statement();
-  node_c* expression();
-  node_c* and_exp();
-  node_c* not_exp();
-  node_c* compare_exp();
-  node_c* add_exp();
-  node_c* mult_exp();
-  node_c* negate_exp();
-  node_c* power_exp();
-  node_c* value();
-  node_c* constant();
+
+  precedence_e peek_precedence();
+  std::unordered_map<token_e, prefix_parse_fn> _prefix_fns;
+  std::unordered_map<token_e, infix_parse_fn> _infix_fns;
+
+
+  node_c* prefix_expr();
+  node_c* grouped_expr();
+  node_c* infix_expr(node_c* left);
+  node_c* expression(precedence_e precedence);
+  node_c* identifier();
+  node_c* number();
+  node_c* str();
 };
 
 } // namespace compiler
