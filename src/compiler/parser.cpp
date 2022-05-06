@@ -57,7 +57,22 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
 } // namespace
 
 parser_c::parser_c() {
-  _statement_functions = {std::bind(&parser_c::let_statement, this)};
+  _statement_functions = {
+    std::bind(&parser_c::let_statement, this),
+    std::bind(&parser_c::label_statement, this),
+    std::bind(&parser_c::for_statement, this),
+    std::bind(&parser_c::goto_statement, this),
+    std::bind(&parser_c::gosub_statement, this),
+    std::bind(&parser_c::if_statement, this),
+    std::bind(&parser_c::input_statement, this),
+    std::bind(&parser_c::next_statement, this),
+    std::bind(&parser_c::open_statement, this),
+    std::bind(&parser_c::poke_statement, this),
+    std::bind(&parser_c::print_statement, this),
+    std::bind(&parser_c::read_statement, this),
+    std::bind(&parser_c::return_statement, this),
+    std::bind(&parser_c::remark_statement, this),
+  };
 
   _prefix_fns[token_e::ID] = &parser_c::identifier;
   _prefix_fns[token_e::INTEGER] = &parser_c::number;
@@ -219,8 +234,6 @@ node_c *parser_c::let_statement() {
   }
   advance();
 
-  display_expr_tree("", exp);
-
   if (current_td_pair().token != token_e::SEMICOLON) {
     die(0, "Missing ';'");
     return nullptr;
@@ -234,6 +247,177 @@ node_c *parser_c::let_statement() {
   return assignment_node;
 }
 
+node_c *parser_c::label_statement() {
+  if (current_td_pair().token != token_e::LABEL) {
+    return nullptr;
+  }
+  auto label_node = new node_c(node_type::LABEL, current_td_pair().location, current_td_pair().data);
+  advance();
+  return label_node;
+}
+
+std::vector<node_c*> parser_c::get_statements()
+{
+  std::vector<node_c*> results;
+  for(auto &&func : _statement_functions) {
+    if (auto result = func(); result) {
+      results.push_back(result);
+    } else {
+      return results;
+    }
+  }
+  return results;
+};
+
+node_c *parser_c::for_statement()
+{
+  if (current_td_pair().token != token_e::FOR) {
+    return nullptr;
+  }
+  auto for_location = current_td_pair().location;
+
+  advance();
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected ID");
+    return nullptr;
+  }
+  auto id_location = current_td_pair().location;
+  auto id_value = current_td_pair().data;
+
+  advance();
+
+  if (current_td_pair().token != token_e::EQ) {
+    die(0, "Expected ID assignment ");
+    return nullptr;
+  }
+
+  advance();
+
+  auto from_expr = expression(precedence_e::LOWEST);
+  if (!from_expr) {
+    die(0, "Malformed expression ");
+    return nullptr;
+  }
+
+  advance();
+
+  if (current_td_pair().token != token_e::TO) {
+    die(0, "Expected TO");
+    return nullptr;
+  }
+
+  advance();
+
+  auto to_expr = expression(precedence_e::LOWEST);
+  if (!to_expr) {
+    die(0, "Malformed expression ");
+    return nullptr;
+  }
+
+  advance();
+
+  node_c * step_variable{nullptr};
+
+  // Optional STEP 
+  if (current_td_pair().token == token_e::STEP) {
+    advance();
+    if (current_td_pair().token != token_e::INTEGER ) {
+      die(0, "Expected integer for step (convert to expression later)");
+      return nullptr;
+    }
+    step_variable = new node_c(node_type::INTEGER, current_td_pair().location, current_td_pair().data);
+    advance();
+  }
+
+  // Loop body
+  auto statements = get_statements();
+  if (!_parser_okay) {
+    for(auto item : statements) {
+      free_nodes(item);
+      free_nodes(step_variable);
+    }
+  }
+
+  if (current_td_pair().token != token_e::END) {
+    die(0, "Unexpected token - Expected END");
+    for(auto item : statements) {
+      free_nodes(item);
+      free_nodes(step_variable);
+    }
+  }
+  advance();
+
+  auto loop = new for_loop_c(for_location);
+  loop->from = from_expr;
+  loop->to = to_expr;
+  loop->step = step_variable;
+  loop->body = statements;
+  loop->data = "for";
+  return loop;
+};
+
+node_c *parser_c::goto_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::gosub_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::if_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::input_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::next_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::open_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::poke_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::print_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::read_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::return_statement()
+{
+  return nullptr;
+};
+
+node_c *parser_c::remark_statement()
+{
+  return nullptr;
+};
+
+// // // // // // // // // // // // // // // // // // // // // //
+//                                                             //
+//                Expression parsing logic                     //
+//                                                             //
+// // // // // // // // // // // // // // // // // // // // // //
+
 parser_c::precedence_e parser_c::peek_precedence() {
   if (precedences.find(peek().token) != precedences.end()) {
     return precedences[peek().token];
@@ -242,7 +426,6 @@ parser_c::precedence_e parser_c::peek_precedence() {
 }
 
 node_c *parser_c::prefix_expr() {
-  std::cout << "prefix" << std::endl;
   node_c *node = nullptr;
   switch (current_td_pair().token) {
   case token_e::SUB:
@@ -262,7 +445,6 @@ node_c *parser_c::infix_expr(node_c *left) {
   node_c *node = nullptr;
   switch (current_td_pair().token) {
   case token_e::ADD:
-    std::cout << "infix - add" << std::endl;
     node = new node_c(node_type::ADD, current_td_pair().location, "+");
     break;
   case token_e::SUB:
@@ -318,7 +500,6 @@ node_c *parser_c::infix_expr(node_c *left) {
 }
 
 node_c *parser_c::grouped_expr() {
-  std::cout << "groiuped" << std::endl;
   advance();
   auto expr = expression(precedence_e::LOWEST);
 
@@ -330,9 +511,6 @@ node_c *parser_c::grouped_expr() {
 }
 
 node_c *parser_c::expression(precedence_e precedence) {
-
-  std::cout << "expr" << std::endl;
-
   if (_prefix_fns.find(current_td_pair().token) == _prefix_fns.end()) {
     die(0, "no thing for prefix tok");
     return nullptr;
@@ -354,14 +532,11 @@ node_c *parser_c::expression(precedence_e precedence) {
 }
 
 node_c *parser_c::identifier() {
-  std::cout << "ident" << std::endl;
-
   return new node_c(node_type::ID, current_td_pair().location,
                     current_td_pair().data);
 }
 
 node_c *parser_c::number() {
-  std::cout << "number" << std::endl;
   if (current_td_pair().token == token_e::INTEGER) {
     return new node_c(node_type::INTEGER, current_td_pair().location,
                       current_td_pair().data);
@@ -375,8 +550,6 @@ node_c *parser_c::number() {
 }
 
 node_c *parser_c::str() {
-
-  std::cout << "str" << std::endl;
   if (current_td_pair().token == token_e::STRING) {
     return new node_c(node_type::STRING, current_td_pair().location,
                       current_td_pair().data);

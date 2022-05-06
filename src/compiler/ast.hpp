@@ -2,6 +2,7 @@
 #define COMPILER_AST_HPP
 
 #include <string>
+#include <vector>
 
 namespace compiler {
 
@@ -35,7 +36,10 @@ enum class node_type {
   GT,
   GTE,
   POW,
-  STRING
+  STRING,
+  LABEL,
+  FOR,
+  END
 };
 
 class location_c {
@@ -57,6 +61,16 @@ public:
   std::string data;
   node_type type;
   location_c location;
+};
+
+class for_loop_c : public node_c {
+public:
+  for_loop_c(const location_c &loc) : node_c(node_type::FOR, loc) {}
+
+  node_c * from {nullptr};
+  node_c * to {nullptr};
+  node_c * step {nullptr};
+  std::vector<node_c*> body;
 };
 
 } // namespace compiler

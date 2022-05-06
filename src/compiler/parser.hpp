@@ -56,15 +56,29 @@ private:
 
   node_c *statement();
   node_c *let_statement();
+  node_c *label_statement();
+  node_c *for_statement();
+  node_c *goto_statement();
+  node_c *gosub_statement();
+  node_c *if_statement();
+  node_c *input_statement();
+  node_c *next_statement();
+  node_c *open_statement();
+  node_c *poke_statement();
+  node_c *print_statement();
+  node_c *read_statement();
+  node_c *return_statement();
+  node_c *remark_statement();
+
+  std::vector<node_c*> get_statements();
 
   precedence_e peek_precedence();
   std::unordered_map<token_e, prefix_parse_fn> _prefix_fns;
   std::unordered_map<token_e, infix_parse_fn> _infix_fns;
-
+  node_c *expression(precedence_e precedence);
   node_c *prefix_expr();
   node_c *grouped_expr();
   node_c *infix_expr(node_c *left);
-  node_c *expression(precedence_e precedence);
   node_c *identifier();
   node_c *number();
   node_c *str();

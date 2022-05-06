@@ -34,7 +34,7 @@ Real           = {digit}+.{digit}+
                 | IF <Expression> THEN <Statement>         
                 | INPUT <ID List>       
                 | INPUT '#' Integer ',' <ID List>       
-                | LET Id '=' <Expression> 
+                | LET Id '=' <Expression>
                 | NEXT <ID List>               
                 | OPEN <Value> FOR <Access> AS '#' Integer
                 | POKE <Value List>
