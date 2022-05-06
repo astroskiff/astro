@@ -9,9 +9,27 @@ namespace compiler {
 class node_c;
 
 extern void display_expr_tree(const std::string &prefix, node_c *n,
-                              bool is_left);
+                              bool is_left = true);
 
-enum class node_type { ASSIGN_U8, ASSIGN_U16, ASSIGN_U32, ASSIGN_U64, ASSIGN_I8, ASSIGN_I16, ASSIGN_I32, ASSIGN_I64, REASSIGN };
+extern void append_node(node_c *to, node_c *from);
+
+extern void free_nodes(node_c *node);
+
+enum class node_type
+{ 
+  LET,
+  ID,
+  ADD,
+  SUB,
+  DIV,
+  MUL,
+  HAT,
+  INTEGER,
+  FLOAT,
+  OR,
+  AND,
+  NOT
+};
 
 class location_c {
 public:

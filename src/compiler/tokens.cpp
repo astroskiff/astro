@@ -59,6 +59,8 @@ std::string token_to_str(const td_pair_t &td) {
     return show("OR", td.location);
   case token_e::COMMA:
     return show("COMMA", td.location);
+  case token_e::EQ:
+    return show("EQ", td.location);
   case token_e::EQ_EQ:
     return show("EQ_EQ", td.location);
   case token_e::NOT_EQ:
@@ -91,6 +93,10 @@ std::string token_to_str(const td_pair_t &td) {
     return show("FLOAT", td.location);
   case token_e::STRING:
     return show("STRING", td.location);
+  case token_e::LABEL:
+    return show("LABEL", td.location);
+  case token_e::SEMICOLON:
+    return show("SEMICOLON", td.location);
   case token_e::ERT:
     return "ERT";
   case token_e::EOS:

@@ -19,4 +19,27 @@ void display_expr_tree(const std::string &prefix, node_c *n,
                     false);
 }
 
+void append_node(node_c *to, node_c *from)
+{
+  if(!to) { return; }
+  if(!to->left) {
+    to->left = from;
+  } else {
+    auto i = to;
+    while(i->right) {
+      i = i->right;
+    }
+    i->right = from;
+  }
+}
+
+void free_nodes(node_c * node) {
+  if (!node) {
+    return;
+  }
+  free_nodes(node->left);
+  free_nodes(node->right);
+  delete node;
+}
+
 } // namespace compiler

@@ -32,6 +32,7 @@ enum class token_e {
   AND,
   OR,
   COMMA,
+  EQ,
   EQ_EQ,
   NOT_EQ,
   GT,
@@ -47,7 +48,9 @@ enum class token_e {
   R_PAREN,
   INTEGER,
   FLOAT,
-  STRING, 
+  STRING,
+  LABEL,
+  SEMICOLON,
   ERT, // Error token
   EOS  // End of stream
 };

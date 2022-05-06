@@ -17,20 +17,20 @@ String         = '"'{String Chars}*'"'
 Integer        = {digit}+ 
 Real           = {digit}+.{digit}+ 
 
-<Lines>       ::= Integer <Statements> NewLine <Lines> 
-                | Integer <Statements> NewLine
+<Lines>       ::= <Statements>+
 
-<Statements>  ::= <Statement> ':' <Statements>
+<Statements>  ::= <Statement> ';' <Statements>
                 | <Statement>
 
 <Statement>   ::= CLOSE '#' Integer
+                | ''' ID  
                 | DATA <Constant List> 
                 | DIM ID '(' <Integer List> ')'
                 | END          
                 | FOR ID '=' <Expression> TO <Expression>     
                 | FOR ID '=' <Expression> TO <Expression> STEP Integer      
-                | GOTO <Expression> 
-                | GOSUB <Expression> 
+                | GOTO ID
+                | GOSUB ID 
                 | IF <Expression> THEN <Statement>         
                 | INPUT <ID List>       
                 | INPUT '#' Integer ',' <ID List>       
@@ -46,9 +46,8 @@ Real           = {digit}+.{digit}+
 
 <Access>   ::= INPUT
              | OUPUT
-                   
-<ID List>  ::= ID ',' <ID List> 
-             | ID 
+
+<Label> := '\'' ID 
 
 <Value List>      ::= <Value> ',' <Value List> 
                     | <Value> 

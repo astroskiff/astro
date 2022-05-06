@@ -21,6 +21,10 @@ std::vector<uint8_t> compile_project(const targets_e target, std::vector<std::st
 
   std::cout << "Got " << instruction.size() << " items\n";
 
+  for(auto i : instruction) {
+    display_expr_tree("", i);
+  }
+
   return {};
 }
 

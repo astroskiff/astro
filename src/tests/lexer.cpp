@@ -57,6 +57,9 @@ TEST(lexer_tests, all) {
     {")", {compiler::token_e::R_PAREN}},
     {"4194", {compiler::token_e::INTEGER}},
     {"2.14159", {compiler::token_e::FLOAT}},
+    {"'a_program_label", {compiler::token_e::LABEL}},
+    {";", {compiler::token_e::SEMICOLON}},
+    {"=", {compiler::token_e::EQ}},
   };
 
   for (auto &tc : tcs) {

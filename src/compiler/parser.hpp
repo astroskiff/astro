@@ -6,6 +6,7 @@
 #include "tokens.hpp"
 
 #include <unordered_map>
+#include <functional>
 
 namespace compiler {
 
@@ -35,8 +36,20 @@ private:
   const td_pair_t &peek(const std::size_t ahead = 1) const;
   void die(uint64_t error_no, std::string error);
 
-  node_c* top_level_item();
-  node_c* function();
+  std::vector<std::function<node_c*()>> _statement_functions;
+
+  node_c* statement();
+  node_c* let_statement();
+  node_c* expression();
+  node_c* and_exp();
+  node_c* not_exp();
+  node_c* compare_exp();
+  node_c* add_exp();
+  node_c* mult_exp();
+  node_c* negate_exp();
+  node_c* power_exp();
+  node_c* value();
+  node_c* constant();
 };
 
 } // namespace compiler
