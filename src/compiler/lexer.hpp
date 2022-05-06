@@ -1,5 +1,5 @@
-#ifndef COMPILER_LANG_LEXER_HPP
-#define COMPILER_LANG_LEXER_HPP
+#ifndef COMPILER_LEXER_HPP
+#define COMPILER_LEXER_HPP
 
 #include <string>
 #include <unordered_map>
@@ -8,7 +8,6 @@
 #include "tokens.hpp"
 
 namespace compiler {
-namespace lang {
 
 //! \brief Lexer
 class lexer_c {
@@ -36,7 +35,7 @@ private:
   void advance();
   char peek(size_t ahead = 1);
 };
-} // namespace lang
+
 } // namespace compiler
 
 #endif

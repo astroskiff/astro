@@ -1,10 +1,9 @@
-#ifndef COMPILER_LANG_TOKENS_HPP
-#define COMPILER_LANG_TOKENS_HPP
+#ifndef COMPILER_TOKENS_HPP
+#define COMPILER_TOKENS_HPP
 
 #include <string>
 
 namespace compiler {
-namespace lang {
 
 enum class token_e {
   FN = 0,
@@ -308,7 +307,6 @@ static std::string token_to_str(const td_pair_t &td) {
          "]";
 }
 
-} // namespace lang
 } // namespace compiler
 
 #endif

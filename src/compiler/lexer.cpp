@@ -7,7 +7,6 @@
 #include <locale>
 
 namespace compiler {
-namespace lang {
 
 lexer_c::lexer_c() : _idx(0) {
   _reserved["fn"] = token_e::FN;
@@ -353,5 +352,4 @@ char lexer_c::peek(size_t ahead) {
   return _current_line[_idx + ahead];
 }
 
-} // namespace lang
 } // namespace compiler
