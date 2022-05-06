@@ -278,7 +278,38 @@ node_c* parser_c::compare_exp()
 
 node_c* parser_c::add_exp() 
 { 
-  return mult_exp(); 
+  auto current_expression = mult_exp();
+  if (!current_expression) {
+    return nullptr;
+  }
+
+  std::cout << token_to_str(current_td_pair()) << std::endl;
+
+  if (current_td_pair().token == token_e::ADD) {
+    auto op_node = new node_c(node_type::ADD, current_td_pair().location, "+");
+    advance();
+    auto next_expression = add_exp();
+    if (!next_expression) {
+      delete op_node;
+      return nullptr;
+    }
+  return current_expression; 
+  }
+
+  if (current_td_pair().token == token_e::SUB) {
+    auto op_node = new node_c(node_type::SUB, current_td_pair().location, "-");
+    advance();
+
+    auto next_expression = add_exp();
+    if (!next_expression) {
+      delete op_node;
+      return nullptr;
+    }
+    return current_expression; 
+
+  }
+
+  return current_expression; 
 }
 
 node_c* parser_c::mult_exp() 
