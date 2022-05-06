@@ -359,12 +359,66 @@ node_c *parser_c::for_statement()
 
 node_c *parser_c::goto_statement()
 {
-  return nullptr;
+  if (current_td_pair().token != token_e::GOTO) {
+    return nullptr;
+  }
+  auto goto_location = current_td_pair().location;
+
+  advance();
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected label ID");
+    return nullptr;
+  }
+  auto id_location = current_td_pair().location;
+  auto id_value = current_td_pair().data;
+
+  advance();
+
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Expected ;");
+    return nullptr;
+  }
+
+  advance();
+
+  auto label_node = new node_c(node_type::LABEL, id_location, id_value);
+  auto goto_node = new node_c(node_type::GOTO, goto_location, "goto");
+  append_node(goto_node, label_node);
+
+  return goto_node;
 };
 
 node_c *parser_c::gosub_statement()
 {
-  return nullptr;
+  if (current_td_pair().token != token_e::GOSUB) {
+    return nullptr;
+  }
+  auto gosub_location = current_td_pair().location;
+
+  advance();
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected label ID");
+    return nullptr;
+  }
+  auto id_location = current_td_pair().location;
+  auto id_value = current_td_pair().data;
+
+  advance();
+
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Expected ;");
+    return nullptr;
+  }
+
+  advance();
+
+  auto label_node = new node_c(node_type::LABEL, id_location, id_value);
+  auto gosub_node = new node_c(node_type::GOTO, gosub_location, "gosub");
+  append_node(gosub_node, label_node);
+  
+  return gosub_node;
 };
 
 node_c *parser_c::if_statement()

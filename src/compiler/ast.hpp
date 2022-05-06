@@ -39,7 +39,8 @@ enum class node_type {
   STRING,
   LABEL,
   FOR,
-  END
+  END,
+  GOTO
 };
 
 class location_c {

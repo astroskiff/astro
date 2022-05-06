@@ -19,7 +19,6 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     for(auto body_node : for_loop->body) {
       display_expr_tree("    ", body_node);
     }
-    std::cout << " ──────── END ────────" << std::endl;
     return;
   }
 
