@@ -15,8 +15,7 @@ extern void append_node(node_c *to, node_c *from);
 
 extern void free_nodes(node_c *node);
 
-enum class node_type
-{ 
+enum class node_type {
   LET,
   ID,
   ADD,
@@ -49,16 +48,16 @@ public:
 
 class node_c {
 public:
-  node_c(const node_type type, const location_c loc) : type(type), location(loc){}
-  node_c(const node_type type, const location_c loc, const std::string &data) : type(type), data(data), location(loc){}
+  node_c(const node_type type, const location_c loc)
+      : type(type), location(loc) {}
+  node_c(const node_type type, const location_c loc, const std::string &data)
+      : type(type), data(data), location(loc) {}
   node_c *left{nullptr};
   node_c *right{nullptr};
   std::string data;
   node_type type;
   location_c location;
 };
-
-
 
 } // namespace compiler
 

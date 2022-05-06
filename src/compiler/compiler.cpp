@@ -5,7 +5,10 @@
 
 namespace compiler {
 
-std::vector<uint8_t> compile_project(const targets_e target, std::vector<std::string> include_directories, const std::string &file) {
+std::vector<uint8_t>
+compile_project(const targets_e target,
+                std::vector<std::string> include_directories,
+                const std::string &file) {
 
   if (!std::filesystem::is_regular_file(file)) {
     std::cerr << "File: " << file << " does not exist" << std::endl;
@@ -14,14 +17,14 @@ std::vector<uint8_t> compile_project(const targets_e target, std::vector<std::st
 
   std::vector<td_pair_t> tokens;
 
-  //  Create the parser with cdt. 
-  //  
+  //  Create the parser with cdt.
+  //
   parser_c parser;
-  std::vector<node_c*> instruction = parser.parse_file(file);
+  std::vector<node_c *> instruction = parser.parse_file(file);
 
   std::cout << "Got " << instruction.size() << " items\n";
 
-  for(auto i : instruction) {
+  for (auto i : instruction) {
     display_expr_tree("", i);
   }
 

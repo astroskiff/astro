@@ -1,8 +1,8 @@
 #ifndef COMPILER_TOKENS_HPP
 #define COMPILER_TOKENS_HPP
 
-#include <string>
 #include "ast.hpp"
+#include <string>
 
 namespace compiler {
 

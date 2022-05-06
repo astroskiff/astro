@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <tuple>
 #include <vector>
-#include <cstdint>
 
 namespace compiler {
 
@@ -18,7 +17,9 @@ enum class targets_e {
 //! \param project The loaded project information
 //! \returns Tuple of success boolean (true iff no errors are generated)
 //!          along-with the resulting binary
-extern std::vector<uint8_t> compile_project(const targets_e target, std::vector<std::string> include_dirs, const std::string &file);
+extern std::vector<uint8_t>
+compile_project(const targets_e target, std::vector<std::string> include_dirs,
+                const std::string &file);
 
 } // namespace compiler
 

@@ -98,31 +98,29 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
     case '!':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(
-            td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx}});
       }
       break;
 
     case '+':
-        _tokens.emplace_back(td_pair_t{token_e::ADD, "+", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::ADD, "+", {line_no, _idx}});
       break;
 
     case '-':
-        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
       break;
 
     case '/':
-        _tokens.emplace_back(td_pair_t{token_e::DIV, "/", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::DIV, "/", {line_no, _idx}});
       break;
 
     case '*':
-        _tokens.emplace_back(td_pair_t{token_e::MUL, "*", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::MUL, "*", {line_no, _idx}});
       break;
 
     case '^':
-        _tokens.emplace_back(td_pair_t{token_e::HAT, "^", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::HAT, "^", {line_no, _idx}});
       break;
-
 
     case '=':
       if (peek() == '=') {
@@ -202,8 +200,7 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
       word += _current_line[_idx];
       if (_reserved.find(word) == _reserved.end()) {
-        _tokens.emplace_back(
-            td_pair_t{token_e::ID, word, {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::ID, word, {line_no, _idx}});
       } else {
         _tokens.emplace_back(td_pair_t{_reserved[word], word, {line_no, _idx}});
       }
