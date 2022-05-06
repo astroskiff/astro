@@ -1,102 +1,110 @@
+
 ```
+https://rosettacode.org/wiki/BNF_Grammar
 
-<entry> := <use-statement>
-         | <import-statement>
-         | [pub] <function-statement>
-         | [pub] <struct-statement>
-         | [pub] <container-statement>
+"Case Sensitive" = False 
+"Start Symbol"   = <Lines>
 
-<use-statement> := 'use' <identifier> ';'
-                 | <use-statement> 'use' <identifer> ';'
+{String Chars} = {Printable} - ["]
+{WS}           = {Whitespace} - {CR} - {LF}
 
-<import-statement> := 'import' <string> ';'
-                    | <import-statement> 'import' <string> ';'
+NewLine        = {CR}{LF}|{CR}
+Whitespace     = {WS}+
 
-<function-statement> := 'fn' <identifier> '(' <parameter-declaration> ')' '->' <identifer> <statement-block>
+Remark         = REM{Space}{Printable}*
+ID             = {Letter}[$%]? 
+String         = '"'{String Chars}*'"' 
+Integer        = {digit}+ 
+Real           = {digit}+.{digit}+ 
 
-<struct-statement> := 'struct' <identifer> '{' [<struct-definition-block>] '}' ';'
+<Lines>       ::= Integer <Statements> NewLine <Lines> 
+                | Integer <Statements> NewLine
 
-<struct-definition-block> := <identifier> ':' <identifier> ';'
-                           | <struct-definition-block> <identifier> ':' <identifier> ';'
+<Statements>  ::= <Statement> ':' <Statements>
+                | <Statement>
 
-<container-statement> := 'container' '<' <identifier-list> '>' ':' <container-sizing> <identifier> ';'
+<Statement>   ::= CLOSE '#' Integer
+                | DATA <Constant List> 
+                | DIM ID '(' <Integer List> ')'
+                | END          
+                | FOR ID '=' <Expression> TO <Expression>     
+                | FOR ID '=' <Expression> TO <Expression> STEP Integer      
+                | GOTO <Expression> 
+                | GOSUB <Expression> 
+                | IF <Expression> THEN <Statement>         
+                | INPUT <ID List>       
+                | INPUT '#' Integer ',' <ID List>       
+                | LET Id '=' <Expression> 
+                | NEXT <ID List>               
+                | OPEN <Value> FOR <Access> AS '#' Integer
+                | POKE <Value List>
+                | PRINT <Print list>
+                | PRINT '#' Integer ',' <Print List>
+                | READ <ID List>           
+                | RETURN
+                | Remark
 
-<identifier-list> := <identifier>
-                   | <identifier-list> ',' <identifer>
+<Access>   ::= INPUT
+             | OUPUT
+                   
+<ID List>  ::= ID ',' <ID List> 
+             | ID 
 
-<container-sizing> := 'fixed'
-                    | 'variable'
+<Value List>      ::= <Value> ',' <Value List> 
+                    | <Value> 
 
-<parameter-declaration> := <identifier> ':' <identifier>
-                          | <<parameter-declaration> ',' <identifier> ':' <identifier>
+<Constant List>   ::= <Constant> ',' <Constant List> 
+                    | <Constant> 
 
-<statement-block> := '{' <statments>+ '}'
+<Integer List>    ::= Integer ',' <Integer List>
+                    | Integer
+                 
+<Expression List> ::= <Expression> ',' <Expression List> 
+                    | <Expression> 
 
-statements := <assignment>
-            | <if-statement>
-            | <while-statement>
-            | <for-statement>
-            | <return-statement>
-            | <expression>
+<Print List>      ::= <Expression> ';' <Print List>
+                    | <Expression> 
+                    |  
 
-<assignment> := 'let' <identifier> ':' <identifier> [<literal-accessor>+] '=' <expression> ';'
+<Expression>  ::= <And Exp> OR <Expression> 
+                | <And Exp> 
 
-<literal-accessor> := '[' <number> ']'
-
-<expression-accessor> := '[' <expression> ']'
-
-<if-statement> := 'if' <conditional> <statement-block> [<else-if>+] [<else>]
-
-<else-if> := 'else' 'if' <statement-block>
-
-<else> := 'else' <statement-block>
-
-<while-statement> := 'while' <conditional> <statemebt-block>
+<And Exp>     ::= <Not Exp> AND <And Exp> 
+                | <Not Exp> 
  
-<conditional> := '(' expression ')'
+<Not Exp>     ::= NOT <Compare Exp> 
+                | <Compare Exp> 
 
-<for-statement> := 'for' '(' [<assignment>] ';' <expression> ';' [<expression>] ')' <statement-block>
+<Compare Exp> ::= <Add Exp> '==' <Compare Exp> 
+                | <Add Exp> '!=' <Compare Exp> 
+                | <Add Exp> '>'  <Compare Exp> 
+                | <Add Exp> '>=' <Compare Exp> 
+                | <Add Exp> '<'  <Compare Exp> 
+                | <Add Exp> '<=' <Compare Exp> 
+                | <Add Exp> 
 
-<identifier> := <letter> | <identifier> <letter> | <identifier> <number> | <identifier> '_'
+<Add Exp>     ::= <Mult Exp> '+' <Add Exp> 
+                | <Mult Exp> '-' <Add Exp> 
+                | <Mult Exp> 
 
-<letter> := ALPHANUM
+<Mult Exp>    ::= <Negate Exp> '*' <Mult Exp> 
+                | <Negate Exp> '/' <Mult Exp> 
+                | <Negate Exp> 
 
-<number> := DECIMAL_NUMBER
+<Negate Exp>  ::= '-' <Power Exp> 
+                | <Power Exp> 
 
-<float> := <number> '.' <number>+
+<Power Exp>   ::= <Power Exp> '^' <Value> 
+                | <Value> 
 
-<string> := '"' <chars>+ '"'
+<Value>       ::= '(' <Expression> ')'
+                | ID 
+                | ID '(' <Expression List> ')'
+                | <Constant> 
 
-<expression> := <prefix> [<infix+>]
+<Constant> ::= Integer 
+             | String 
+             | Real 
 
-<expression-list> := <expression>
-                    | ',' <expression-list>
 
-<prefix> := <identifier>
-          | <number> 
-          | <float>
-          | <string>
-          | <prefix> 
-          | '(' <expression> ')'
-          | '{' <expression-list> '}'
-
-<infix> := '=' <expression>
-          | '=' '=' <expression>
-          | '!' '=' <expression>
-          | '<' <expression>
-          | '>' <expression>
-          | '<' '=' <expression>
-          | '>' '=' <expression>
-          | '+' <expression>
-          | '-' <expression>
-          | '/' <expression>
-          | '*' <expression>
-          | '%' <expression>
-          | <call-expr>
-          | <expression-accessor>
-
-<call-expr> := <identifier> '(' [<call_parameter_list>] ')' 
-
-<call_parameter_list> := <expression> 
-                       | <call_parameter_list> ',' <expression>
 ```

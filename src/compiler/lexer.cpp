@@ -9,21 +9,29 @@
 namespace compiler {
 
 lexer_c::lexer_c() : _idx(0) {
-  _reserved["fn"] = token_e::FN;
-  _reserved["while"] = token_e::WHILE;
+  _reserved["data"] = token_e::DATA;
+  _reserved["dim"] = token_e::DIM;
+  _reserved["id"] = token_e::ID;
+  _reserved["end"] = token_e::END;
   _reserved["for"] = token_e::FOR;
+  _reserved["to"] = token_e::TO;
+  _reserved["step"] = token_e::STEP;
+  _reserved["goto"] = token_e::GOTO;
+  _reserved["gosub"] = token_e::GOSUB;
   _reserved["if"] = token_e::IF;
-  _reserved["else"] = token_e::ELSE;
-  _reserved["return"] = token_e::RETURN;
-  _reserved["break"] = token_e::BREAK;
+  _reserved["then"] = token_e::THEN;
+  _reserved["input"] = token_e::INPUT;
   _reserved["let"] = token_e::LET;
-  _reserved["use"] = token_e::USE;
-  _reserved["import"] = token_e::IMPORT;
-  _reserved["struct"] = token_e::STRUCT;
-  _reserved["container"] = token_e::CONTAINER;
-  _reserved["fixed"] = token_e::C_FIXED;
-  _reserved["variable"] = token_e::C_VARIABLE;
-  _reserved["pub"] = token_e::PUB;
+  _reserved["next"] = token_e::NEXT;
+  _reserved["open"] = token_e::OPEN;
+  _reserved["poke"] = token_e::POKE;
+  _reserved["print"] = token_e::PRINT;
+  _reserved["read"] = token_e::READ;
+  _reserved["return"] = token_e::RETURN;
+  _reserved["rem"] = token_e::REM;
+  _reserved["not"] = token_e::NOT;
+  _reserved["and"] = token_e::AND;
+  _reserved["or"] = token_e::OR;
 }
 
 void lexer_c::clear() {
@@ -38,225 +46,72 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
   for (_idx = 0; _idx < _current_line.size(); advance()) {
     switch (_current_line[_idx]) {
     case '(':
-      _tokens.emplace_back(td_pair_t{token_e::L_PAREN, "(", line_no, _idx});
+      _tokens.emplace_back(td_pair_t{token_e::L_PAREN, "(", {line_no, _idx}});
       break;
 
     case ')':
-      _tokens.emplace_back(td_pair_t{token_e::R_PAREN, ")", line_no, _idx});
-      break;
-
-    case '[':
-      _tokens.emplace_back(td_pair_t{token_e::L_BRACKET, "[", line_no, _idx});
-      break;
-
-    case ']':
-      _tokens.emplace_back(td_pair_t{token_e::R_BRACKET, "]", line_no, _idx});
-      break;
-
-    case '{':
-      _tokens.emplace_back(td_pair_t{token_e::L_BRACE, "{", line_no, _idx});
-      break;
-
-    case '}':
-      _tokens.emplace_back(td_pair_t{token_e::R_BRACE, "}", line_no, _idx});
-      break;
-
-    case ':':
-      _tokens.emplace_back(td_pair_t{token_e::COLON, ":", line_no, _idx});
-      break;
-
-    case ';':
-      _tokens.emplace_back(td_pair_t{token_e::SEMICOLON, ";", line_no, _idx});
+      _tokens.emplace_back(td_pair_t{token_e::R_PAREN, ")", {line_no, _idx}});
       break;
 
     case ',':
-      _tokens.emplace_back(td_pair_t{token_e::COMMA, ",", line_no, _idx});
+      _tokens.emplace_back(td_pair_t{token_e::COMMA, ",", {line_no, _idx}});
+      break;
+
+    case '#':
+      _tokens.emplace_back(td_pair_t{token_e::OCTOTHORP, "#", {line_no, _idx}});
       break;
 
     case '>':
-      if (peek() == '>') {
+      if (peek() == '=') {
         advance();
-        if (peek() == '=') {
-          advance();
-          _tokens.emplace_back(
-              td_pair_t{token_e::RSH_EQ, ">>=", line_no, _idx});
-        } else {
-          _tokens.emplace_back(td_pair_t{token_e::RSH, ">>", line_no, _idx});
-        }
-      } else if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::GTE, ">=", line_no, _idx});
+        _tokens.emplace_back(td_pair_t{token_e::GTE, ">=", {line_no, _idx}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::GT, ">", line_no, _idx});
+        _tokens.emplace_back(td_pair_t{token_e::GT, ">", {line_no, _idx}});
       }
       break;
 
     case '<':
-      if (peek() == '<') {
+      if (peek() == '=') {
         advance();
-        if (peek() == '=') {
-          advance();
-          _tokens.emplace_back(
-              td_pair_t{token_e::LSH_EQ, "<<=", line_no, _idx});
-        } else {
-          _tokens.emplace_back(td_pair_t{token_e::LSH, "<<", line_no, _idx});
-        }
-      } else if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::LTE, "<=", line_no, _idx});
+        _tokens.emplace_back(td_pair_t{token_e::LTE, "<=", {line_no, _idx}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::LT, "<", line_no, _idx});
+        _tokens.emplace_back(td_pair_t{token_e::LT, "<", {line_no, _idx}});
       }
-      break;
-
-    case '@':
-      _tokens.emplace_back(td_pair_t{token_e::AT, "@", line_no, _idx});
-      break;
-
-    case '$':
-      _tokens.emplace_back(td_pair_t{token_e::DOLLAR, "$", line_no, _idx});
-      break;
-
-    case '\'':
-      _tokens.emplace_back(
-          td_pair_t{token_e::SINGLE_QUOTE, "'", line_no, _idx});
-      break;
-
-    case '?':
-      _tokens.emplace_back(
-          td_pair_t{token_e::QUESTION_MARK, "?", line_no, _idx});
-      break;
-
-    case '.':
-      _tokens.emplace_back(td_pair_t{token_e::PERIOD, ".", line_no, _idx});
-      break;
-
-    case '#':
-      _tokens.emplace_back(td_pair_t{token_e::OCTOTHORPE, "#", line_no, _idx});
       break;
 
     case '!':
       if (peek() == '=') {
         advance();
         _tokens.emplace_back(
-            td_pair_t{token_e::EXCLAMATION_EQ, "!=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(
-            td_pair_t{token_e::EXCLAMATION, "!", line_no, _idx});
-      }
-      break;
-
-    case '-':
-      if (peek() == '>') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::ARROW, "->", line_no, _idx});
-      } else if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::SUB_EQ, "-=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", line_no, _idx});
+            td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx}});
       }
       break;
 
     case '+':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::ADD_EQ, "+=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::ADD, "+", line_no, _idx});
-      }
+        _tokens.emplace_back(td_pair_t{token_e::ADD, "+", {line_no, _idx}});
+      break;
+
+    case '-':
+        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
       break;
 
     case '/':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::DIV_EQ, "/=", line_no, _idx});
- 
-      } else if ( peek() == '/' ) {
-        // Eat line - its a comment
-        _idx = _current_line.size();
-        continue;
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::DIV, "/", line_no, _idx});
-      }
+        _tokens.emplace_back(td_pair_t{token_e::DIV, "/", {line_no, _idx}});
       break;
 
     case '*':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::MUL_EQ, "*=", line_no, _idx});
-      } else if (peek() == '*') {
-        advance();
-        if (peek() == '=') {
-          advance();
-          _tokens.emplace_back(
-              td_pair_t{token_e::POW_EQ, "**=", line_no, _idx});
-        } else {
-          _tokens.emplace_back(td_pair_t{token_e::POW, "**", line_no, _idx});
-        }
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::MUL, "*", line_no, _idx});
-      }
-      break;
-
-    case '%':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::MOD_EQ, "%=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::MOD, "%", line_no, _idx});
-      }
-      break;
-
-    case '&':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(
-            td_pair_t{token_e::AMPERSAND_EQ, "&=", line_no, _idx});
-      } else if (peek() == '&') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::AND, "&&", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::AMPERSAND, "&", line_no, _idx});
-      }
-      break;
-
-    case '|':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::PIPE_EQ, "|=", line_no, _idx});
-      } else if (peek() == '|') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::OR, "||", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::PIPE, "|", line_no, _idx});
-      }
-      break;
-
-    case '~':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::TILDE_EQ, "~=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::TILDE, "~", line_no, _idx});
-      }
+        _tokens.emplace_back(td_pair_t{token_e::MUL, "*", {line_no, _idx}});
       break;
 
     case '^':
-      if (peek() == '=') {
-        advance();
-        _tokens.emplace_back(td_pair_t{token_e::HAT_EQ, "^=", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::HAT, "^", line_no, _idx});
-      }
+        _tokens.emplace_back(td_pair_t{token_e::HAT, "^", {line_no, _idx}});
       break;
+
 
     case '=':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::EQ_EQ, "==", line_no, _idx});
-      } else {
-        _tokens.emplace_back(td_pair_t{token_e::EQ, "=", line_no, _idx});
+        _tokens.emplace_back(td_pair_t{token_e::EQ_EQ, "==", {line_no, _idx}});
       }
       break;
 
@@ -290,7 +145,7 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
         advance();
       }
 
-      _tokens.emplace_back(td_pair_t{token_e::STRING, value, line_no, _idx});
+      _tokens.emplace_back(td_pair_t{token_e::STRING, value, {line_no, _idx}});
       break;
     }
     default:
@@ -312,10 +167,10 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
         if (is_float) {
           _tokens.emplace_back(
-              td_pair_t{token_e::LITERAL_FLOAT, item, line_no, _idx});
+              td_pair_t{token_e::FLOAT, item, {line_no, _idx}});
         } else {
           _tokens.emplace_back(
-              td_pair_t{token_e::LITERAL_NUMBER, item, line_no, _idx});
+              td_pair_t{token_e::INTEGER, item, {line_no, _idx}});
         }
         break;
       }
@@ -330,9 +185,9 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
       word += _current_line[_idx];
       if (_reserved.find(word) == _reserved.end()) {
         _tokens.emplace_back(
-            td_pair_t{token_e::IDENTIFIER, word, line_no, _idx});
+            td_pair_t{token_e::ID, word, {line_no, _idx}});
       } else {
-        _tokens.emplace_back(td_pair_t{_reserved[word], {}, line_no, _idx});
+        _tokens.emplace_back(td_pair_t{_reserved[word], word, {line_no, _idx}});
       }
       break;
     }

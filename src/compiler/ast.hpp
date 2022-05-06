@@ -1,7 +1,6 @@
 #ifndef COMPILER_AST_HPP
 #define COMPILER_AST_HPP
 
-#include "tokens.hpp"
 #include <string>
 
 namespace compiler {

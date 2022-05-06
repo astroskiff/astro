@@ -48,6 +48,7 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/page.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/ast.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tokens.cpp
 )
 
 set(ASTRO_SOURCES
