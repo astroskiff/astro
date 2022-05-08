@@ -12,7 +12,6 @@ add_executable(astro_unit_tests
         ${ASTRO_SOURCES}
         example.cpp
         lexer.cpp
-        types.cpp
         main.cpp)
 
 

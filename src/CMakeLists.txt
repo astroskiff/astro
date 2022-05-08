@@ -42,29 +42,21 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-set(CLI_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/cli/add_mod.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/cli/new_project.cpp
-)
-
 set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lang/lexer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lang/types.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/errors/error_manager.cpp
-)
-
-set(PROJECT_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/project/project.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lexer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/parser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/page.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/ast.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tokens.cpp
 )
 
 set(ASTRO_SOURCES
-  ${CLI_SOURCES}
   ${COMPILER_SOURCES}
-  ${PROJECT_SOURCES}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR/compiler})
 
 add_executable(${PROJECT_NAME}
         ${ASTRO_SOURCES}
