@@ -40,7 +40,8 @@ enum class node_type {
   LABEL,
   FOR,
   END,
-  GOTO
+  GOTO,
+  PRINT
 };
 
 class location_c {
@@ -71,6 +72,12 @@ public:
   node_c * from {nullptr};
   node_c * to {nullptr};
   node_c * step {nullptr};
+  std::vector<node_c*> body;
+};
+
+class print_c : public node_c {
+public:
+  print_c(const location_c &loc) : node_c(node_type::PRINT, loc) {}
   std::vector<node_c*> body;
 };
 

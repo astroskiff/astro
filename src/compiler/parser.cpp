@@ -448,7 +448,44 @@ node_c *parser_c::poke_statement()
 
 node_c *parser_c::print_statement()
 {
-  return nullptr;
+
+  if (current_td_pair().token != token_e::PRINT) {
+    return nullptr;
+  }
+
+  auto print_location = current_td_pair().location;
+
+
+  std::vector<node_c*> body;
+  while(1) {
+    advance();
+
+    auto expr = expression(precedence_e::LOWEST);
+    if (!expr) {
+      die(0, "Malformed expression ");
+      return nullptr;
+    }
+
+    advance();
+    body.push_back(expr);
+
+    if (current_td_pair().token != token_e::COMMA) {
+      break;
+    }
+  }
+
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Expected ;");
+    return nullptr;
+  }
+
+  advance();
+
+  auto print_node = new print_c(print_location);
+  print_node->body = body;
+  print_node->data = "print";
+
+  return print_node;
 };
 
 node_c *parser_c::read_statement()
