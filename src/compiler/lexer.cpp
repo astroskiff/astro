@@ -25,6 +25,7 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["not"] = token_e::NOT;
   _reserved["and"] = token_e::AND;
   _reserved["or"] = token_e::OR;
+  _reserved["asm"] = token_e::ASM;
 }
 
 void lexer_c::clear() {

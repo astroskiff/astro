@@ -7,6 +7,7 @@
 namespace compiler {
 
 enum class token_e {
+  ASM,
   ID,
   FOR,
   TO,

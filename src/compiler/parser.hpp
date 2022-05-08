@@ -64,6 +64,7 @@ private:
   node_c *elif_statement();
   node_c *else_statement();
   node_c *return_statement();
+  node_c *asm_statement();
 
   std::vector<node_c *> statement_block();
 

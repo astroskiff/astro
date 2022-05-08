@@ -17,6 +17,7 @@ extern void append_node(node_c *to, node_c *from);
 extern void free_nodes(node_c *node);
 
 enum class node_type_e {
+  ASM,
   LET,
   ID,
   VARIABLE,

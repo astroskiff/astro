@@ -10,6 +10,8 @@ std::string token_to_str(const td_pair_t &td) {
            std::to_string(loc.col) + "]";
   };
   switch (td.token) {
+  case token_e::ASM:
+    return show("ASM", td.location);
   case token_e::ID:
     return show("ID", td.location);
   case token_e::FOR:

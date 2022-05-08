@@ -66,6 +66,7 @@ parser_c::parser_c() {
       std::bind(&parser_c::gosub_statement, this),
       std::bind(&parser_c::if_statement, this),
       std::bind(&parser_c::return_statement, this),
+      std::bind(&parser_c::asm_statement, this),
   };
 
   _prefix_fns[token_e::ID] = &parser_c::identifier;
@@ -179,6 +180,9 @@ std::vector<node_c *> parser_c::parse_file(const std::string &file) {
   _tokens.clear();
 
   if (!_parser_okay) {
+    for (auto item : results) {
+      free_nodes(item);
+    }
     results.clear();
   }
 
@@ -285,7 +289,6 @@ std::vector<node_c *> parser_c::statement_block() {
         results.push_back(result);
       }
     }
-    std::cout << token_to_str(current_td_pair()) << std::endl;
   }
 
   if (!_parser_okay) {
@@ -445,6 +448,53 @@ node_c *parser_c::gosub_statement() {
   return gosub_node;
 };
 
+node_c *parser_c::asm_statement() {
+
+  if (current_td_pair().token != token_e::ASM) {
+    return nullptr;
+  }
+  auto location = current_td_pair().location;
+  advance();
+
+  if (current_td_pair().token != token_e::L_BRACE) {
+    die(0, "Expected '{'");
+    return {};
+  }
+
+  std::vector<node_c *> body;
+
+  while (1) {
+    advance();
+
+    if (current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
+      break;
+    }
+
+    if (current_td_pair().token != token_e::STRING) {
+      die(0, "Expected string in ASM block");
+      return nullptr;
+    }
+
+    body.push_back(new node_c(node_type_e::STRING, current_td_pair().location,
+                              current_td_pair().data));
+  }
+
+  if (!_parser_okay) {
+    return nullptr;
+  }
+
+  if (current_td_pair().token != token_e::R_BRACE) {
+    die(0, "Expected '}'");
+    return {};
+  }
+  advance();
+
+  auto asm_node = new bodied_node_c(node_type_e::ASM, location);
+  asm_node->data = "asm";
+  asm_node->body = body;
+  return asm_node;
+}
+
 node_c *parser_c::if_statement() {
   if (current_td_pair().token != token_e::IF) {
     return nullptr;
@@ -461,9 +511,6 @@ node_c *parser_c::if_statement() {
 
   auto statements = statement_block();
   auto elif = elif_statement();
-
-  std::cout << "Got the body " << statements.size() << ", "
-            << token_to_str(current_td_pair()) << std::endl;
 
   auto conditional =
       new bodied_node_c(node_type_e::CONDITIONAL, if_location, statements);
@@ -483,7 +530,6 @@ node_c *parser_c::if_statement() {
 };
 
 node_c *parser_c::elif_statement() {
-  std::cout << "Getting elif\n";
   if (current_td_pair().token != token_e::ELIF) {
     return nullptr;
   }
@@ -514,7 +560,6 @@ node_c *parser_c::elif_statement() {
 }
 
 node_c *parser_c::else_statement() {
-  std::cout << "Getting else\n";
   if (current_td_pair().token != token_e::ELSE) {
     return nullptr;
   }
@@ -529,8 +574,6 @@ node_c *parser_c::else_statement() {
   conditional->data = "else";
   conditional->body = statements;
   append_node(conditional, new node_c(node_type_e::INTEGER, location, "1"));
-
-  std::cout << "Returning the else\n";
   return conditional;
 }
 

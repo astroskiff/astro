@@ -22,7 +22,7 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     return;
   }
 
-  if (n->type == node_type_e::CONDITIONAL) {
+  if (n->type == node_type_e::CONDITIONAL || n->type == node_type_e::ASM) {
     std::cout << prefix;
     std::cout << (is_left ? "├──" : "└──");
     std::cout << " " << n->data << std::endl;
@@ -75,7 +75,8 @@ void free_nodes(node_c *node) {
     return;
   }
 
-  if (node->type == node_type_e::CONDITIONAL) {
+  if (node->type == node_type_e::CONDITIONAL ||
+      node->type == node_type_e::ASM) {
     auto bn = reinterpret_cast<bodied_node_c *>(node);
     for (auto body_node : bn->body) {
       free_nodes(body_node);

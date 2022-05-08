@@ -17,6 +17,7 @@ TEST_GROUP(lexer_tests){};
 
 TEST(lexer_tests, all) {
   std::vector<test_case> tcs = {
+      {"asm", {compiler::token_e::ASM}},
       {"x", {compiler::token_e::ID}},
       {"for", {compiler::token_e::FOR}},
       {"to", {compiler::token_e::TO}},
