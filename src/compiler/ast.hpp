@@ -16,9 +16,10 @@ extern void append_node(node_c *to, node_c *from);
 
 extern void free_nodes(node_c *node);
 
-enum class node_type {
+enum class node_type_e {
   LET,
   ID,
+  VARIABLE,
   ADD,
   SUB,
   DIV,
@@ -57,32 +58,43 @@ public:
 
 class node_c {
 public:
-  node_c(const node_type type, const location_c loc)
+  node_c(const node_type_e type, const location_c loc)
       : type(type), location(loc) {}
-  node_c(const node_type type, const location_c loc, const std::string &data)
+  node_c(const node_type_e type, const location_c loc, const std::string &data)
       : type(type), data(data), location(loc) {}
   node_c *left{nullptr};
   node_c *right{nullptr};
   std::string data;
-  node_type type;
+  node_type_e type;
   location_c location;
+};
+
+class variable_c : public node_c {
+public:
+  variable_c(const location_c &loc, const std::string data)
+      : node_c(node_type_e::VARIABLE, loc, data) {}
+
+  std::string type_name;
 };
 
 class for_loop_c : public node_c {
 public:
-  for_loop_c(const location_c &loc) : node_c(node_type::FOR, loc) {}
+  for_loop_c(const location_c &loc) : node_c(node_type_e::FOR, loc) {}
 
-  node_c * from {nullptr};
-  node_c * to {nullptr};
-  node_c * step {nullptr};
-  std::vector<node_c*> body;
+  node_c *from{nullptr};
+  node_c *to{nullptr};
+  node_c *step{nullptr};
+  std::vector<node_c *> body;
 };
 
 class bodied_node_c : public node_c {
 public:
-  bodied_node_c(const node_type type, const location_c &loc) : node_c(type, loc) {}
-  bodied_node_c(const node_type type, const location_c &loc, const std::vector<node_c*> &body) : node_c(type, loc), body(body) {}
-  std::vector<node_c*> body;
+  bodied_node_c(const node_type_e type, const location_c &loc)
+      : node_c(type, loc) {}
+  bodied_node_c(const node_type_e type, const location_c &loc,
+                const std::vector<node_c *> &body)
+      : node_c(type, loc), body(body) {}
+  std::vector<node_c *> body;
 };
 
 } // namespace compiler

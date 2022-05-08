@@ -55,7 +55,9 @@ TEST(lexer_tests, all) {
       {";", {compiler::token_e::SEMICOLON}},
       {"=", {compiler::token_e::EQ}},
       {"{", {compiler::token_e::L_BRACE}},
-      {"}", {compiler::token_e::R_BRACE}}
+      {"}", {compiler::token_e::R_BRACE}},
+      {":", {compiler::token_e::COLON}}
+
   };
 
   for (auto &tc : tcs) {

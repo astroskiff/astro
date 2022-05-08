@@ -55,6 +55,10 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
       _tokens.emplace_back(td_pair_t{token_e::SEMICOLON, ";", {line_no, _idx}});
       break;
 
+    case ':':
+      _tokens.emplace_back(td_pair_t{token_e::COLON, ":", {line_no, _idx}});
+      break;
+
     case '(':
       _tokens.emplace_back(td_pair_t{token_e::L_PAREN, "(", {line_no, _idx}});
       break;

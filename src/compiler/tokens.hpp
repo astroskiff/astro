@@ -45,6 +45,7 @@ enum class token_e {
   STRING,
   LABEL,
   SEMICOLON,
+  COLON,
   L_BRACE,
   R_BRACE,
   ERT, // Error token

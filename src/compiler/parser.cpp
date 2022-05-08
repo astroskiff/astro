@@ -59,14 +59,14 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
 
 parser_c::parser_c() {
   _statement_functions = {
-    std::bind(&parser_c::let_statement, this),
-    std::bind(&parser_c::label_statement, this),
-    std::bind(&parser_c::for_statement, this),
-    std::bind(&parser_c::goto_statement, this),
-    std::bind(&parser_c::gosub_statement, this),
-    std::bind(&parser_c::if_statement, this),
-    std::bind(&parser_c::print_statement, this),
-    std::bind(&parser_c::return_statement, this),
+      std::bind(&parser_c::let_statement, this),
+      std::bind(&parser_c::label_statement, this),
+      std::bind(&parser_c::for_statement, this),
+      std::bind(&parser_c::goto_statement, this),
+      std::bind(&parser_c::gosub_statement, this),
+      std::bind(&parser_c::if_statement, this),
+      std::bind(&parser_c::print_statement, this),
+      std::bind(&parser_c::return_statement, this),
   };
 
   _prefix_fns[token_e::ID] = &parser_c::identifier;
@@ -218,6 +218,18 @@ node_c *parser_c::let_statement() {
 
   advance();
 
+  std::string variable_type_name{};
+
+  if (current_td_pair().token == token_e::COLON) {
+    advance();
+    if (current_td_pair().token != token_e::ID) {
+      die(0, "Expected type name");
+      return nullptr;
+    }
+    variable_type_name = current_td_pair().data;
+    advance();
+  }
+
   if (current_td_pair().token != token_e::EQ) {
     die(0, "Expected '=' for assignment'");
     return nullptr;
@@ -238,8 +250,9 @@ node_c *parser_c::let_statement() {
   }
   advance();
 
-  auto assignment_node = new node_c(node_type::LET, location, "let");
-  auto variable_node = new node_c(node_type::ID, id_loc, id);
+  auto assignment_node = new node_c(node_type_e::LET, location, "let");
+  auto variable_node = new variable_c(id_loc, id);
+  variable_node->type_name = variable_type_name;
   append_node(assignment_node, variable_node);
   append_node(assignment_node, exp);
   return assignment_node;
@@ -249,26 +262,26 @@ node_c *parser_c::label_statement() {
   if (current_td_pair().token != token_e::LABEL) {
     return nullptr;
   }
-  auto label_node = new node_c(node_type::LABEL, current_td_pair().location, current_td_pair().data);
+  auto label_node = new node_c(node_type_e::LABEL, current_td_pair().location,
+                               current_td_pair().data);
   advance();
   return label_node;
 }
 
-std::vector<node_c*> parser_c::statement_block()
-{
+std::vector<node_c *> parser_c::statement_block() {
   if (current_td_pair().token != token_e::L_BRACE) {
     die(0, "Expected '{'");
     return {};
   }
   advance();
 
-  std::vector<node_c*> results;
+  std::vector<node_c *> results;
 
-  while(1) {
-    if(current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
+  while (1) {
+    if (current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
       break;
     }
-    for(auto &&func : _statement_functions) {
+    for (auto &&func : _statement_functions) {
       if (auto result = func(); result) {
         results.push_back(result);
       }
@@ -277,7 +290,7 @@ std::vector<node_c*> parser_c::statement_block()
   }
 
   if (!_parser_okay) {
-    for(auto s : results) {
+    for (auto s : results) {
       free_nodes(s);
     }
     return {};
@@ -292,8 +305,7 @@ std::vector<node_c*> parser_c::statement_block()
   return results;
 };
 
-node_c *parser_c::for_statement()
-{
+node_c *parser_c::for_statement() {
   if (current_td_pair().token != token_e::FOR) {
     return nullptr;
   }
@@ -340,23 +352,24 @@ node_c *parser_c::for_statement()
 
   advance();
 
-  node_c * step_variable{nullptr};
+  node_c *step_variable{nullptr};
 
-  // Optional STEP 
+  // Optional STEP
   if (current_td_pair().token == token_e::STEP) {
     advance();
-    if (current_td_pair().token != token_e::INTEGER ) {
+    if (current_td_pair().token != token_e::INTEGER) {
       die(0, "Expected integer for step (convert to expression later)");
       return nullptr;
     }
-    step_variable = new node_c(node_type::INTEGER, current_td_pair().location, current_td_pair().data);
+    step_variable = new node_c(node_type_e::INTEGER, current_td_pair().location,
+                               current_td_pair().data);
     advance();
   }
 
   // Loop body
   auto statements = statement_block();
   if (!_parser_okay) {
-    for(auto item : statements) {
+    for (auto item : statements) {
       free_nodes(item);
     }
     free_nodes(step_variable);
@@ -371,8 +384,7 @@ node_c *parser_c::for_statement()
   return loop;
 };
 
-node_c *parser_c::goto_statement()
-{
+node_c *parser_c::goto_statement() {
   if (current_td_pair().token != token_e::GOTO) {
     return nullptr;
   }
@@ -396,15 +408,14 @@ node_c *parser_c::goto_statement()
 
   advance();
 
-  auto label_node = new node_c(node_type::LABEL, id_location, id_value);
-  auto goto_node = new node_c(node_type::GOTO, goto_location, "goto");
+  auto label_node = new node_c(node_type_e::LABEL, id_location, id_value);
+  auto goto_node = new node_c(node_type_e::GOTO, goto_location, "goto");
   append_node(goto_node, label_node);
 
   return goto_node;
 };
 
-node_c *parser_c::gosub_statement()
-{
+node_c *parser_c::gosub_statement() {
   if (current_td_pair().token != token_e::GOSUB) {
     return nullptr;
   }
@@ -428,15 +439,14 @@ node_c *parser_c::gosub_statement()
 
   advance();
 
-  auto label_node = new node_c(node_type::LABEL, id_location, id_value);
-  auto gosub_node = new node_c(node_type::GOTO, gosub_location, "gosub");
+  auto label_node = new node_c(node_type_e::LABEL, id_location, id_value);
+  auto gosub_node = new node_c(node_type_e::GOTO, gosub_location, "gosub");
   append_node(gosub_node, label_node);
-  
+
   return gosub_node;
 };
 
-node_c *parser_c::if_statement()
-{
+node_c *parser_c::if_statement() {
   if (current_td_pair().token != token_e::IF) {
     return nullptr;
   }
@@ -453,13 +463,15 @@ node_c *parser_c::if_statement()
   auto statements = statement_block();
   auto elif = elif_statement();
 
-  std::cout << "Got the body " << statements.size() << ", " << token_to_str(current_td_pair()) << std::endl;
+  std::cout << "Got the body " << statements.size() << ", "
+            << token_to_str(current_td_pair()) << std::endl;
 
-  auto conditional = new bodied_node_c(node_type::CONDITIONAL, if_location, statements);
+  auto conditional =
+      new bodied_node_c(node_type_e::CONDITIONAL, if_location, statements);
   conditional->data = "if";
   conditional->body = statements;
   append_node(conditional, first_condition);
-  if(elif) {
+  if (elif) {
     append_node(conditional, elif);
   }
 
@@ -471,8 +483,7 @@ node_c *parser_c::if_statement()
   return conditional;
 };
 
-node_c *parser_c::elif_statement()
-{
+node_c *parser_c::elif_statement() {
   std::cout << "Getting elif\n";
   if (current_td_pair().token != token_e::ELIF) {
     return nullptr;
@@ -491,19 +502,19 @@ node_c *parser_c::elif_statement()
   auto statements = statement_block();
   auto elif = elif_statement();
 
-  auto conditional = new bodied_node_c(node_type::CONDITIONAL, location, statements);
+  auto conditional =
+      new bodied_node_c(node_type_e::CONDITIONAL, location, statements);
   conditional->data = "elif";
   conditional->body = statements;
 
   append_node(conditional, first_condition);
-  if(elif) {
+  if (elif) {
     append_node(conditional, elif);
   }
   return conditional;
 }
 
-node_c *parser_c::else_statement()
-{
+node_c *parser_c::else_statement() {
   std::cout << "Getting else\n";
   if (current_td_pair().token != token_e::ELSE) {
     return nullptr;
@@ -514,17 +525,17 @@ node_c *parser_c::else_statement()
 
   auto statements = statement_block();
 
-  auto conditional = new bodied_node_c(node_type::CONDITIONAL, location, statements);
+  auto conditional =
+      new bodied_node_c(node_type_e::CONDITIONAL, location, statements);
   conditional->data = "else";
   conditional->body = statements;
-  append_node(conditional, new node_c(node_type::INTEGER, location, "1"));
+  append_node(conditional, new node_c(node_type_e::INTEGER, location, "1"));
 
   std::cout << "Returning the else\n";
   return conditional;
 }
 
-node_c *parser_c::print_statement()
-{
+node_c *parser_c::print_statement() {
 
   if (current_td_pair().token != token_e::PRINT) {
     return nullptr;
@@ -532,8 +543,8 @@ node_c *parser_c::print_statement()
 
   auto print_location = current_td_pair().location;
 
-  std::vector<node_c*> body;
-  while(1) {
+  std::vector<node_c *> body;
+  while (1) {
     advance();
 
     auto expr = expression(precedence_e::LOWEST);
@@ -557,19 +568,15 @@ node_c *parser_c::print_statement()
 
   advance();
 
-  auto print_node = new bodied_node_c(node_type::PRINT, print_location, body);
+  auto print_node = new bodied_node_c(node_type_e::PRINT, print_location, body);
   print_node->data = "print";
 
   return print_node;
 };
 
-node_c *parser_c::read_statement()
-{
-  return nullptr;
-};
+node_c *parser_c::read_statement() { return nullptr; };
 
-node_c *parser_c::return_statement()
-{
+node_c *parser_c::return_statement() {
   if (current_td_pair().token != token_e::RETURN) {
     return nullptr;
   }
@@ -582,7 +589,7 @@ node_c *parser_c::return_statement()
   }
   advance();
 
-  auto return_node = new node_c(node_type::RETURN, return_location);
+  auto return_node = new node_c(node_type_e::RETURN, return_location);
   return_node->data = "return";
   return return_node;
 };
@@ -604,7 +611,7 @@ node_c *parser_c::prefix_expr() {
   node_c *node = nullptr;
   switch (current_td_pair().token) {
   case token_e::SUB:
-    node = new node_c(node_type::SUB, current_td_pair().location, "-");
+    node = new node_c(node_type_e::SUB, current_td_pair().location, "-");
     break;
   default:
     die(0, "Invalid prefix token hit");
@@ -620,46 +627,46 @@ node_c *parser_c::infix_expr(node_c *left) {
   node_c *node = nullptr;
   switch (current_td_pair().token) {
   case token_e::ADD:
-    node = new node_c(node_type::ADD, current_td_pair().location, "+");
+    node = new node_c(node_type_e::ADD, current_td_pair().location, "+");
     break;
   case token_e::SUB:
-    node = new node_c(node_type::SUB, current_td_pair().location, "-");
+    node = new node_c(node_type_e::SUB, current_td_pair().location, "-");
     break;
   case token_e::DIV:
-    node = new node_c(node_type::ADD, current_td_pair().location, "/");
+    node = new node_c(node_type_e::ADD, current_td_pair().location, "/");
     break;
   case token_e::MUL:
-    node = new node_c(node_type::ADD, current_td_pair().location, "*");
+    node = new node_c(node_type_e::ADD, current_td_pair().location, "*");
     break;
   case token_e::EQ:
-    node = new node_c(node_type::EQ, current_td_pair().location, "=");
+    node = new node_c(node_type_e::EQ, current_td_pair().location, "=");
     break;
   case token_e::EQ_EQ:
-    node = new node_c(node_type::EQ_EQ, current_td_pair().location, "==");
+    node = new node_c(node_type_e::EQ_EQ, current_td_pair().location, "==");
     break;
   case token_e::LT:
-    node = new node_c(node_type::LT, current_td_pair().location, "<");
+    node = new node_c(node_type_e::LT, current_td_pair().location, "<");
     break;
   case token_e::LTE:
-    node = new node_c(node_type::LTE, current_td_pair().location, "<=");
+    node = new node_c(node_type_e::LTE, current_td_pair().location, "<=");
     break;
   case token_e::GT:
-    node = new node_c(node_type::GT, current_td_pair().location, ">");
+    node = new node_c(node_type_e::GT, current_td_pair().location, ">");
     break;
   case token_e::GTE:
-    node = new node_c(node_type::GTE, current_td_pair().location, ">=");
+    node = new node_c(node_type_e::GTE, current_td_pair().location, ">=");
     break;
   case token_e::OR:
-    node = new node_c(node_type::OR, current_td_pair().location, "or");
+    node = new node_c(node_type_e::OR, current_td_pair().location, "or");
     break;
   case token_e::AND:
-    node = new node_c(node_type::AND, current_td_pair().location, "and");
+    node = new node_c(node_type_e::AND, current_td_pair().location, "and");
     break;
   case token_e::HAT:
-    node = new node_c(node_type::POW, current_td_pair().location, "^");
+    node = new node_c(node_type_e::POW, current_td_pair().location, "^");
     break;
   case token_e::NOT_EQ:
-    node = new node_c(node_type::NOT_EQ, current_td_pair().location, "!=");
+    node = new node_c(node_type_e::NOT_EQ, current_td_pair().location, "!=");
     break;
   default:
     die(0, "Invalid infix token hit");
@@ -710,17 +717,17 @@ node_c *parser_c::expression(precedence_e precedence) {
 }
 
 node_c *parser_c::identifier() {
-  return new node_c(node_type::ID, current_td_pair().location,
+  return new node_c(node_type_e::ID, current_td_pair().location,
                     current_td_pair().data);
 }
 
 node_c *parser_c::number() {
   if (current_td_pair().token == token_e::INTEGER) {
-    return new node_c(node_type::INTEGER, current_td_pair().location,
+    return new node_c(node_type_e::INTEGER, current_td_pair().location,
                       current_td_pair().data);
   }
   if (current_td_pair().token == token_e::FLOAT) {
-    return new node_c(node_type::FLOAT, current_td_pair().location,
+    return new node_c(node_type_e::FLOAT, current_td_pair().location,
                       current_td_pair().data);
   }
   die(0, "Expected numerical value");
@@ -729,7 +736,7 @@ node_c *parser_c::number() {
 
 node_c *parser_c::str() {
   if (current_td_pair().token == token_e::STRING) {
-    return new node_c(node_type::STRING, current_td_pair().location,
+    return new node_c(node_type_e::STRING, current_td_pair().location,
                       current_td_pair().data);
   }
   die(0, "Expected string");

@@ -86,6 +86,8 @@ std::string token_to_str(const td_pair_t &td) {
     return show("LABEL", td.location);
   case token_e::SEMICOLON:
     return show("SEMICOLON", td.location);
+  case token_e::COLON:
+    return show("COLON", td.location);
   case token_e::ELSE:
     return show("ELSE", td.location);
   case token_e::ELIF:

@@ -9,40 +9,52 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     return;
   }
 
-  if (n->type == node_type::FOR) {
+  if (n->type == node_type_e::FOR) {
     std::cout << " " << n->data << std::endl;
-    auto for_loop = reinterpret_cast<for_loop_c*>(n);
+    auto for_loop = reinterpret_cast<for_loop_c *>(n);
     display_expr_tree(" ", for_loop->from);
     display_expr_tree(" ", for_loop->to);
     display_expr_tree(" ", for_loop->step);
     std::cout << " ├── body " << std::endl;
-    for(auto body_node : for_loop->body) {
+    for (auto body_node : for_loop->body) {
       display_expr_tree("    ", body_node);
     }
     return;
   }
 
-  if (n->type == node_type::PRINT) {
+  if (n->type == node_type_e::PRINT) {
     std::cout << " " << n->data << std::endl;
-    auto print = reinterpret_cast<bodied_node_c*>(n);
+    auto print = reinterpret_cast<bodied_node_c *>(n);
     std::cout << " ├── body " << std::endl;
-    for(auto body_node : print->body) {
+    for (auto body_node : print->body) {
       display_expr_tree("    ", body_node);
     }
     return;
   }
 
-  if (n->type == node_type::CONDITIONAL) {
+  if (n->type == node_type_e::CONDITIONAL) {
     std::cout << prefix;
     std::cout << (is_left ? "├──" : "└──");
     std::cout << " " << n->data << std::endl;
     display_expr_tree(prefix + (is_left ? "│   " : "    "), n->left, true);
-    auto print = reinterpret_cast<bodied_node_c*>(n);
+    auto print = reinterpret_cast<bodied_node_c *>(n);
     std::cout << " ├── body " << std::endl;
-    for(auto body_node : print->body) {
+    for (auto body_node : print->body) {
       display_expr_tree("    ", body_node);
     }
-      display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
+    display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
+    return;
+  }
+
+  if (n->type == node_type_e::VARIABLE) {
+    auto v = reinterpret_cast<variable_c *>(n);
+    std::string type = v->type_name.empty() ? "unknown" : v->type_name;
+    std::cout << " " << n->data << " (type:" << type << ")" << std::endl;
+    std::cout << prefix;
+    std::cout << (is_left ? "├──" : "└──");
+    std::cout << " " << n->data << std::endl;
+    display_expr_tree(prefix + (is_left ? "│   " : "    "), n->left, true);
+    display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
     return;
   }
 
@@ -73,16 +85,17 @@ void free_nodes(node_c *node) {
     return;
   }
 
-  if (node->type == node_type::PRINT || node->type == node_type::CONDITIONAL) {
-    auto bn = reinterpret_cast<bodied_node_c*>(node);
-    for(auto body_node : bn->body) {
+  if (node->type == node_type_e::PRINT ||
+      node->type == node_type_e::CONDITIONAL) {
+    auto bn = reinterpret_cast<bodied_node_c *>(node);
+    for (auto body_node : bn->body) {
       free_nodes(body_node);
     }
   }
 
-  if (node->type == node_type::FOR) {
-    auto for_loop = reinterpret_cast<for_loop_c*>(node);
-    for(auto body_node : for_loop->body) {
+  if (node->type == node_type_e::FOR) {
+    auto for_loop = reinterpret_cast<for_loop_c *>(node);
+    for (auto body_node : for_loop->body) {
       free_nodes(body_node);
     }
     free_nodes(for_loop->from);

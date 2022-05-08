@@ -20,10 +20,12 @@ float          = {digit}+.{digit}+
              | GOSUB ID ';'
              | RETURN ';'
              | PRINT <expression-list> ';'
-             | LET ID '=' <expression>,
+             | LET ID [<type-specifier>] '=' <expression>,
              | <for-loop>
              | <if>
             
+<type-specifier> := ':' ID
+
 <for-loop> := FOR ID '=' <expression> 'to' <expression> <statement_block> 
             | FOR ID '=' <expression> 'to' <expression> 'step' <integer> <statement_block> 
 
