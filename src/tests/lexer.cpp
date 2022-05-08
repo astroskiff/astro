@@ -56,8 +56,16 @@ TEST(lexer_tests, all) {
       {"=", {compiler::front::token_e::EQ}},
       {"{", {compiler::front::token_e::L_BRACE}},
       {"}", {compiler::front::token_e::R_BRACE}},
-      {":", {compiler::front::token_e::COLON}}
-
+      {":", {compiler::front::token_e::COLON}},
+      {"and", {compiler::front::token_e::BITWISE_AND}},
+      {"or", {compiler::front::token_e::BITWISE_OR}},
+      {"xor", {compiler::front::token_e::BITWISE_XOR}},
+      {"not", {compiler::front::token_e::BITWISE_NOT}},
+      {"lsh", {compiler::front::token_e::LSH}},
+      {"rsh", {compiler::front::token_e::RSH}},
+      {"[", {compiler::front::token_e::L_BRACKET}},
+      {"]", {compiler::front::token_e::R_BRACKET}},
+      {"%", {compiler::front::token_e::MOD}},
   };
 
   for (auto &tc : tcs) {

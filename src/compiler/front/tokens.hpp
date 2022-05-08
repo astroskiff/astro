@@ -7,7 +7,6 @@
 namespace compiler {
 namespace front {
 
-
 enum class token_e {
   ASM,
   ID,
@@ -50,6 +49,17 @@ enum class token_e {
   COLON,
   L_BRACE,
   R_BRACE,
+
+  BITWISE_AND,
+  BITWISE_OR,
+  BITWISE_XOR,
+  BITWISE_NOT,
+  LSH,
+  RSH,
+  L_BRACKET,
+  R_BRACKET,
+  MOD,
+
   ERT, // Error token
   EOS  // End of stream
 };
@@ -64,7 +74,7 @@ struct td_pair_t {
 //! \brief Print a token data pair
 extern std::string token_to_str(const td_pair_t &td);
 
-}
+} // namespace front
 } // namespace compiler
 
 #endif

@@ -48,12 +48,20 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
     {token_e::GTE, parser_c::precedence_e::LESS_GREATER},
     {token_e::ADD, parser_c::precedence_e::SUM},
     {token_e::SUB, parser_c::precedence_e::SUM},
+    {token_e::MOD, parser_c::precedence_e::SUM},
     {token_e::DIV, parser_c::precedence_e::PROD},
     {token_e::MUL, parser_c::precedence_e::PROD},
     {token_e::HAT, parser_c::precedence_e::POW},
     {token_e::OR, parser_c::precedence_e::LOGICAL},
     {token_e::AND, parser_c::precedence_e::LOGICAL},
     {token_e::NOT_EQ, parser_c::precedence_e::LOGICAL},
+    {token_e::LSH, parser_c::precedence_e::SHIFT},
+    {token_e::RSH, parser_c::precedence_e::SHIFT},
+    {token_e::BITWISE_AND, parser_c::precedence_e::BITWISE},
+    {token_e::BITWISE_NOT, parser_c::precedence_e::BITWISE},
+    {token_e::BITWISE_OR, parser_c::precedence_e::BITWISE},
+    {token_e::BITWISE_XOR, parser_c::precedence_e::BITWISE},
+    {token_e::L_BRACE, parser_c::precedence_e::INDEX},
 };
 
 } // namespace
@@ -77,6 +85,8 @@ parser_c::parser_c() {
   _prefix_fns[token_e::SUB] = &parser_c::prefix_expr;
   _prefix_fns[token_e::L_PAREN] = &parser_c::grouped_expr;
   _prefix_fns[token_e::NOT] = &parser_c::grouped_expr;
+  _prefix_fns[token_e::BITWISE_NOT] = &parser_c::grouped_expr;
+  _prefix_fns[token_e::L_BRACE] = &parser_c::constructor_list;
 
   _infix_fns[token_e::NOT_EQ] = &parser_c::infix_expr;
   _infix_fns[token_e::ADD] = &parser_c::infix_expr;
@@ -93,6 +103,12 @@ parser_c::parser_c() {
   _infix_fns[token_e::AND] = &parser_c::infix_expr;
   _infix_fns[token_e::HAT] = &parser_c::infix_expr;
   _infix_fns[token_e::NOT_EQ] = &parser_c::infix_expr;
+  _infix_fns[token_e::MOD] = &parser_c::infix_expr;
+  _infix_fns[token_e::LSH] = &parser_c::infix_expr;
+  _infix_fns[token_e::RSH] = &parser_c::infix_expr;
+  _infix_fns[token_e::BITWISE_AND] = &parser_c::infix_expr;
+  _infix_fns[token_e::BITWISE_OR] = &parser_c::infix_expr;
+  _infix_fns[token_e::BITWISE_XOR] = &parser_c::infix_expr;
 }
 
 void parser_c::prev() { _idx--; }
@@ -615,6 +631,12 @@ node_c *parser_c::prefix_expr() {
   case token_e::SUB:
     node = new node_c(node_type_e::SUB, current_td_pair().location, "-");
     break;
+  case token_e::NOT:
+    node = new node_c(node_type_e::NOT, current_td_pair().location, "!");
+    break;
+  case token_e::BITWISE_NOT:
+    node = new node_c(node_type_e::NOT, current_td_pair().location, "not");
+    break;
   default:
     die(0, "Invalid prefix token hit");
     return nullptr;
@@ -670,6 +692,24 @@ node_c *parser_c::infix_expr(node_c *left) {
   case token_e::NOT_EQ:
     node = new node_c(node_type_e::NOT_EQ, current_td_pair().location, "!=");
     break;
+  case token_e::LSH:
+    node = new node_c(node_type_e::LSH, current_td_pair().location, "lsh");
+    break;
+  case token_e::RSH:
+    node = new node_c(node_type_e::RSH, current_td_pair().location, "rsh");
+    break;
+  case token_e::MOD:
+    node = new node_c(node_type_e::MOD, current_td_pair().location, "mod");
+    break;
+  case token_e::BITWISE_AND:
+    node = new node_c(node_type_e::BW_AND, current_td_pair().location, "and");
+    break;
+  case token_e::BITWISE_OR:
+    node = new node_c(node_type_e::BW_OR, current_td_pair().location, "or");
+    break;
+  case token_e::BITWISE_XOR:
+    node = new node_c(node_type_e::BW_XOR, current_td_pair().location, "xor");
+    break;
   default:
     die(0, "Invalid infix token hit");
     return nullptr;
@@ -697,6 +737,13 @@ node_c *parser_c::grouped_expr() {
   return expr;
 }
 
+node_c *parser_c::constructor_list() {
+
+  std::cerr << "Constructor list not yest supported" << std::endl;
+  die(0, "Not yet supported");
+  return nullptr;
+}
+
 node_c *parser_c::expression(precedence_e precedence) {
   if (_prefix_fns.find(current_td_pair().token) == _prefix_fns.end()) {
     die(0, "no thing for prefix tok");
@@ -719,8 +766,38 @@ node_c *parser_c::expression(precedence_e precedence) {
 }
 
 node_c *parser_c::identifier() {
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected ID");
+    return nullptr;
+  }
+
+  //  If the next token is a '(' we know that the identifier is meant to
+  //  be a function name so lets eat that up
+  //
+  if (peek().token == token_e::L_PAREN) {
+    return call();
+  }
+
+  // If the next item is a '[' we know that the identifier is
+  // being treated as an array
+  //
+  if (peek().token == token_e::R_BRACKET) {
+    return array_index();
+  }
+
   return new node_c(node_type_e::ID, current_td_pair().location,
                     current_td_pair().data);
+}
+
+node_c *parser_c::call() {
+  die(0, "Calls in expressions not yet supported");
+  return nullptr;
+}
+
+node_c *parser_c::array_index() {
+  die(0, "Indexing arrays within expressions not yet supported");
+  return nullptr;
 }
 
 node_c *parser_c::number() {
@@ -745,5 +822,5 @@ node_c *parser_c::str() {
   return nullptr;
 }
 
-}
+} // namespace front
 } // namespace compiler

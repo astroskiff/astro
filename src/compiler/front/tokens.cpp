@@ -94,6 +94,24 @@ std::string token_to_str(const td_pair_t &td) {
     return show("ELSE", td.location);
   case token_e::ELIF:
     return show("ELIF", td.location);
+  case token_e::BITWISE_AND:
+    return show("BITWISE_AND", td.location);
+  case token_e::BITWISE_OR:
+    return show("BITWISE_OR", td.location);
+  case token_e::BITWISE_XOR:
+    return show("BITWISE_XOR", td.location);
+  case token_e::BITWISE_NOT:
+    return show("BITWISE_NOT", td.location);
+  case token_e::LSH:
+    return show("LSH", td.location);
+  case token_e::RSH:
+    return show("RSH", td.location);
+  case token_e::L_BRACKET:
+    return show("L_BRACKET", td.location);
+  case token_e::R_BRACKET:
+    return show("R_BRACKET", td.location);
+  case token_e::MOD:
+    return show("MOD", td.location);
   case token_e::ERT:
     return "ERT";
   case token_e::EOS:
@@ -102,5 +120,5 @@ std::string token_to_str(const td_pair_t &td) {
   return show("UNKNOWN", {0, 0});
 }
 
-}
+} // namespace front
 } // namespace compiler

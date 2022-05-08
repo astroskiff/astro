@@ -9,7 +9,6 @@
 namespace compiler {
 namespace front {
 
-
 lexer_c::lexer_c() : _idx(0) {
   _reserved["id"] = token_e::ID;
   _reserved["for"] = token_e::FOR;
@@ -28,6 +27,12 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["and"] = token_e::AND;
   _reserved["or"] = token_e::OR;
   _reserved["asm"] = token_e::ASM;
+  _reserved["and"] = token_e::BITWISE_AND;
+  _reserved["or"] = token_e::BITWISE_OR;
+  _reserved["xor"] = token_e::BITWISE_XOR;
+  _reserved["not"] = token_e::BITWISE_NOT;
+  _reserved["lsh"] = token_e::LSH;
+  _reserved["rsh"] = token_e::RSH;
 }
 
 void lexer_c::clear() {
@@ -83,6 +88,18 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
     case '}':
       _tokens.emplace_back(td_pair_t{token_e::R_BRACE, "}", {line_no, _idx}});
+      break;
+
+    case '[':
+      _tokens.emplace_back(td_pair_t{token_e::L_BRACKET, "[", {line_no, _idx}});
+      break;
+
+    case ']':
+      _tokens.emplace_back(td_pair_t{token_e::R_BRACKET, "]", {line_no, _idx}});
+      break;
+
+    case '%':
+      _tokens.emplace_back(td_pair_t{token_e::MOD, "%", {line_no, _idx}});
       break;
 
     case '>':
@@ -246,5 +263,5 @@ char lexer_c::peek(size_t ahead) {
   return _current_line[_idx + ahead];
 }
 
-}
+} // namespace front
 } // namespace compiler
