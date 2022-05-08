@@ -9,10 +9,7 @@
 namespace compiler {
 
 lexer_c::lexer_c() : _idx(0) {
-  _reserved["data"] = token_e::DATA;
-  _reserved["dim"] = token_e::DIM;
   _reserved["id"] = token_e::ID;
-  _reserved["end"] = token_e::END;
   _reserved["for"] = token_e::FOR;
   _reserved["to"] = token_e::TO;
   _reserved["step"] = token_e::STEP;
@@ -20,15 +17,12 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["gosub"] = token_e::GOSUB;
   _reserved["if"] = token_e::IF;
   _reserved["then"] = token_e::THEN;
-  _reserved["input"] = token_e::INPUT;
+  _reserved["else"] = token_e::ELSE;
+  _reserved["elif"] = token_e::ELIF;
   _reserved["let"] = token_e::LET;
-  _reserved["next"] = token_e::NEXT;
-  _reserved["open"] = token_e::OPEN;
-  _reserved["poke"] = token_e::POKE;
   _reserved["print"] = token_e::PRINT;
   _reserved["read"] = token_e::READ;
   _reserved["return"] = token_e::RETURN;
-  _reserved["rem"] = token_e::REM;
   _reserved["not"] = token_e::NOT;
   _reserved["and"] = token_e::AND;
   _reserved["or"] = token_e::OR;
@@ -75,6 +69,14 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
     case '#':
       _tokens.emplace_back(td_pair_t{token_e::OCTOTHORP, "#", {line_no, _idx}});
+      break;
+
+    case '{':
+      _tokens.emplace_back(td_pair_t{token_e::L_BRACE, "{", {line_no, _idx}});
+      break;
+
+    case '}':
+      _tokens.emplace_back(td_pair_t{token_e::R_BRACE, "}", {line_no, _idx}});
       break;
 
     case '>':

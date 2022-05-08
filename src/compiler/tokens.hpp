@@ -7,10 +7,7 @@
 namespace compiler {
 
 enum class token_e {
-  DATA,
-  DIM,
   ID,
-  END,
   FOR,
   TO,
   STEP,
@@ -18,16 +15,13 @@ enum class token_e {
   GOSUB,
   IF,
   THEN,
-  INPUT,
+  ELIF,
+  ELSE,
   LET,
-  NEXT,
-  OPEN,
-  POKE,
   PRINT,
   OCTOTHORP,
   READ,
   RETURN,
-  REM,
   NOT,
   AND,
   OR,
@@ -51,6 +45,8 @@ enum class token_e {
   STRING,
   LABEL,
   SEMICOLON,
+  L_BRACE,
+  R_BRACE,
   ERT, // Error token
   EOS  // End of stream
 };

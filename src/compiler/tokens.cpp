@@ -10,14 +10,8 @@ std::string token_to_str(const td_pair_t &td) {
            std::to_string(loc.col) + "]";
   };
   switch (td.token) {
-  case token_e::DATA:
-    return show("DATA", td.location);
-  case token_e::DIM:
-    return show("DIM", td.location);
   case token_e::ID:
     return show("ID", td.location);
-  case token_e::END:
-    return show("END", td.location);
   case token_e::FOR:
     return show("FOR", td.location);
   case token_e::TO:
@@ -32,24 +26,14 @@ std::string token_to_str(const td_pair_t &td) {
     return show("IF", td.location);
   case token_e::THEN:
     return show("THEN", td.location);
-  case token_e::INPUT:
-    return show("INPUT", td.location);
   case token_e::LET:
     return show("LET", td.location);
-  case token_e::NEXT:
-    return show("NEXT", td.location);
-  case token_e::OPEN:
-    return show("OPEN", td.location);
-  case token_e::POKE:
-    return show("POKE", td.location);
   case token_e::PRINT:
     return show("PRINT", td.location);
   case token_e::OCTOTHORP:
     return show("OCTOTHORP", td.location);
   case token_e::READ:
     return show("READ", td.location);
-  case token_e::REM:
-    return show("REM", td.location);
   case token_e::RETURN:
     return show("RETURN", td.location);
   case token_e::NOT:
@@ -88,6 +72,10 @@ std::string token_to_str(const td_pair_t &td) {
     return show("L_PAREN", td.location);
   case token_e::R_PAREN:
     return show("R_PAREN", td.location);
+  case token_e::L_BRACE:
+    return show("L_BRACE", td.location);
+  case token_e::R_BRACE:
+    return show("R_BRACE", td.location);
   case token_e::INTEGER:
     return show("INTEGER", td.location);
   case token_e::FLOAT:
@@ -98,6 +86,10 @@ std::string token_to_str(const td_pair_t &td) {
     return show("LABEL", td.location);
   case token_e::SEMICOLON:
     return show("SEMICOLON", td.location);
+  case token_e::ELSE:
+    return show("ELSE", td.location);
+  case token_e::ELIF:
+    return show("ELIF", td.location);
   case token_e::ERT:
     return "ERT";
   case token_e::EOS:

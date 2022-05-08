@@ -17,10 +17,7 @@ TEST_GROUP(lexer_tests){};
 
 TEST(lexer_tests, all) {
   std::vector<test_case> tcs = {
-      {"data", {compiler::token_e::DATA}},
-      {"dim", {compiler::token_e::DIM}},
       {"x", {compiler::token_e::ID}},
-      {"end", {compiler::token_e::END}},
       {"for", {compiler::token_e::FOR}},
       {"to", {compiler::token_e::TO}},
       {"step", {compiler::token_e::STEP}},
@@ -28,16 +25,13 @@ TEST(lexer_tests, all) {
       {"gosub", {compiler::token_e::GOSUB}},
       {"if", {compiler::token_e::IF}},
       {"then", {compiler::token_e::THEN}},
-      {"input", {compiler::token_e::INPUT}},
+      {"else", {compiler::token_e::ELSE}},
+      {"elif", {compiler::token_e::ELIF}},
       {"let", {compiler::token_e::LET}},
-      {"next", {compiler::token_e::NEXT}},
-      {"open", {compiler::token_e::OPEN}},
-      {"poke", {compiler::token_e::POKE}},
       {"print", {compiler::token_e::PRINT}},
       {"#", {compiler::token_e::OCTOTHORP}},
       {"read", {compiler::token_e::READ}},
       {"return", {compiler::token_e::RETURN}},
-      {"rem", {compiler::token_e::REM}},
       {"!", {compiler::token_e::NOT}},
       {"&&", {compiler::token_e::AND}},
       {"||", {compiler::token_e::OR}},
@@ -59,7 +53,9 @@ TEST(lexer_tests, all) {
       {"2.14159", {compiler::token_e::FLOAT}},
       {"'a_program_label", {compiler::token_e::LABEL}},
       {";", {compiler::token_e::SEMICOLON}},
-      {"=", {compiler::token_e::EQ}}
+      {"=", {compiler::token_e::EQ}},
+      {"{", {compiler::token_e::L_BRACE}},
+      {"}", {compiler::token_e::R_BRACE}}
   };
 
   for (auto &tc : tcs) {

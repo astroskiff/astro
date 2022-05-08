@@ -65,14 +65,8 @@ parser_c::parser_c() {
     std::bind(&parser_c::goto_statement, this),
     std::bind(&parser_c::gosub_statement, this),
     std::bind(&parser_c::if_statement, this),
-    std::bind(&parser_c::input_statement, this),
-    std::bind(&parser_c::next_statement, this),
-    std::bind(&parser_c::open_statement, this),
-    std::bind(&parser_c::poke_statement, this),
     std::bind(&parser_c::print_statement, this),
-    std::bind(&parser_c::read_statement, this),
     std::bind(&parser_c::return_statement, this),
-    std::bind(&parser_c::remark_statement, this),
   };
 
   _prefix_fns[token_e::ID] = &parser_c::identifier;
@@ -260,16 +254,41 @@ node_c *parser_c::label_statement() {
   return label_node;
 }
 
-std::vector<node_c*> parser_c::get_statements()
+std::vector<node_c*> parser_c::statement_block()
 {
-  std::vector<node_c*> results;
-  for(auto &&func : _statement_functions) {
-    if (auto result = func(); result) {
-      results.push_back(result);
-    } else {
-      return results;
-    }
+  if (current_td_pair().token != token_e::L_BRACE) {
+    die(0, "Expected '{'");
+    return {};
   }
+  advance();
+
+  std::vector<node_c*> results;
+
+  while(1) {
+    if(current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
+      break;
+    }
+    for(auto &&func : _statement_functions) {
+      if (auto result = func(); result) {
+        results.push_back(result);
+      }
+    }
+    std::cout << token_to_str(current_td_pair()) << std::endl;
+  }
+
+  if (!_parser_okay) {
+    for(auto s : results) {
+      free_nodes(s);
+    }
+    return {};
+  }
+
+  if (current_td_pair().token != token_e::R_BRACE) {
+    die(0, "Expected '}'");
+    return {};
+  }
+  advance();
+
   return results;
 };
 
@@ -335,22 +354,13 @@ node_c *parser_c::for_statement()
   }
 
   // Loop body
-  auto statements = get_statements();
+  auto statements = statement_block();
   if (!_parser_okay) {
     for(auto item : statements) {
       free_nodes(item);
-      free_nodes(step_variable);
     }
+    free_nodes(step_variable);
   }
-
-  if (current_td_pair().token != token_e::END) {
-    die(0, "Unexpected token - Expected END");
-    for(auto item : statements) {
-      free_nodes(item);
-      free_nodes(step_variable);
-    }
-  }
-  advance();
 
   auto loop = new for_loop_c(for_location);
   loop->from = from_expr;
@@ -427,28 +437,91 @@ node_c *parser_c::gosub_statement()
 
 node_c *parser_c::if_statement()
 {
-  return nullptr;
+  if (current_td_pair().token != token_e::IF) {
+    return nullptr;
+  }
+  auto if_location = current_td_pair().location;
+  advance();
+
+  auto first_condition = expression(precedence_e::LOWEST);
+  if (!first_condition) {
+    die(0, "Malformed expression ");
+    return nullptr;
+  }
+  advance();
+
+  auto statements = statement_block();
+  auto elif = elif_statement();
+
+  std::cout << "Got the body " << statements.size() << ", " << token_to_str(current_td_pair()) << std::endl;
+
+  auto conditional = new bodied_node_c(node_type::CONDITIONAL, if_location, statements);
+  conditional->data = "if";
+  conditional->body = statements;
+  append_node(conditional, first_condition);
+  if(elif) {
+    append_node(conditional, elif);
+  }
+
+  auto else_ = else_statement();
+  if (else_) {
+    append_node(conditional, else_);
+  }
+
+  return conditional;
 };
 
-node_c *parser_c::input_statement()
+node_c *parser_c::elif_statement()
 {
-  return nullptr;
-};
+  std::cout << "Getting elif\n";
+  if (current_td_pair().token != token_e::ELIF) {
+    return nullptr;
+  }
 
-node_c *parser_c::next_statement()
-{
-  return nullptr;
-};
+  auto location = current_td_pair().location;
+  advance();
 
-node_c *parser_c::open_statement()
-{
-  return nullptr;
-};
+  auto first_condition = expression(precedence_e::LOWEST);
+  if (!first_condition) {
+    die(0, "Malformed expression ");
+    return nullptr;
+  }
+  advance();
 
-node_c *parser_c::poke_statement()
+  auto statements = statement_block();
+  auto elif = elif_statement();
+
+  auto conditional = new bodied_node_c(node_type::CONDITIONAL, location, statements);
+  conditional->data = "elif";
+  conditional->body = statements;
+
+  append_node(conditional, first_condition);
+  if(elif) {
+    append_node(conditional, elif);
+  }
+  return conditional;
+}
+
+node_c *parser_c::else_statement()
 {
-  return nullptr;
-};
+  std::cout << "Getting else\n";
+  if (current_td_pair().token != token_e::ELSE) {
+    return nullptr;
+  }
+
+  auto location = current_td_pair().location;
+  advance();
+
+  auto statements = statement_block();
+
+  auto conditional = new bodied_node_c(node_type::CONDITIONAL, location, statements);
+  conditional->data = "else";
+  conditional->body = statements;
+  append_node(conditional, new node_c(node_type::INTEGER, location, "1"));
+
+  std::cout << "Returning the else\n";
+  return conditional;
+}
 
 node_c *parser_c::print_statement()
 {
@@ -484,8 +557,7 @@ node_c *parser_c::print_statement()
 
   advance();
 
-  auto print_node = new print_c(print_location);
-  print_node->body = body;
+  auto print_node = new bodied_node_c(node_type::PRINT, print_location, body);
   print_node->data = "print";
 
   return print_node;
@@ -513,11 +585,6 @@ node_c *parser_c::return_statement()
   auto return_node = new node_c(node_type::RETURN, return_location);
   return_node->data = "return";
   return return_node;
-};
-
-node_c *parser_c::remark_statement()
-{
-  return nullptr;
 };
 
 // // // // // // // // // // // // // // // // // // // // // //

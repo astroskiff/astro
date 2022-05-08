@@ -22,9 +22,16 @@ float          = {digit}+.{digit}+
              | PRINT <expression-list> ';'
              | LET ID '=' <expression>,
              | <for-loop>
+             | <if>
             
-<for-loop> := FOR ID '=' <expression> 'to' <expression> <statement>+ END
-            | FOR ID '=' <expression> 'to' <expression> 'step' <integer> <statement>+ END
+<for-loop> := FOR ID '=' <expression> 'to' <expression> <statement_block> 
+            | FOR ID '=' <expression> 'to' <expression> 'step' <integer> <statement_block> 
+
+<if> := IF <expression> <statement_block>  [<elseif>+] [<else>] END
+<elseif> := ELIF <expression> <statement_block> 
+<else> := ELSE <statement_block> 
+
+<statement_block> := '{' <statement>+ '}'
 
 <expression> := <prefix> [<infix+>]
 

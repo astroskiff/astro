@@ -24,7 +24,7 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
 
   if (n->type == node_type::PRINT) {
     std::cout << " " << n->data << std::endl;
-    auto print = reinterpret_cast<print_c*>(n);
+    auto print = reinterpret_cast<bodied_node_c*>(n);
     std::cout << " ├── body " << std::endl;
     for(auto body_node : print->body) {
       display_expr_tree("    ", body_node);
@@ -32,9 +32,22 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     return;
   }
 
+  if (n->type == node_type::CONDITIONAL) {
+    std::cout << prefix;
+    std::cout << (is_left ? "├──" : "└──");
+    std::cout << " " << n->data << std::endl;
+    display_expr_tree(prefix + (is_left ? "│   " : "    "), n->left, true);
+    auto print = reinterpret_cast<bodied_node_c*>(n);
+    std::cout << " ├── body " << std::endl;
+    for(auto body_node : print->body) {
+      display_expr_tree("    ", body_node);
+    }
+      display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
+    return;
+  }
+
   std::cout << prefix;
   std::cout << (is_left ? "├──" : "└──");
-
   std::cout << " " << n->data << std::endl;
   display_expr_tree(prefix + (is_left ? "│   " : "    "), n->left, true);
   display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
@@ -60,9 +73,9 @@ void free_nodes(node_c *node) {
     return;
   }
 
-  if (node->type == node_type::PRINT) {
-    auto print = reinterpret_cast<print_c*>(node);
-    for(auto body_node : print->body) {
+  if (node->type == node_type::PRINT || node->type == node_type::CONDITIONAL) {
+    auto bn = reinterpret_cast<bodied_node_c*>(node);
+    for(auto body_node : bn->body) {
       free_nodes(body_node);
     }
   }

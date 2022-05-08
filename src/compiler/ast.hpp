@@ -43,7 +43,8 @@ enum class node_type {
   GOTO,
   PRINT,
   RETURN,
-  NOT_EQ
+  NOT_EQ,
+  CONDITIONAL
 };
 
 class location_c {
@@ -77,9 +78,10 @@ public:
   std::vector<node_c*> body;
 };
 
-class print_c : public node_c {
+class bodied_node_c : public node_c {
 public:
-  print_c(const location_c &loc) : node_c(node_type::PRINT, loc) {}
+  bodied_node_c(const node_type type, const location_c &loc) : node_c(type, loc) {}
+  bodied_node_c(const node_type type, const location_c &loc, const std::vector<node_c*> &body) : node_c(type, loc), body(body) {}
   std::vector<node_c*> body;
 };
 

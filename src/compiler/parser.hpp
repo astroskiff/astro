@@ -61,16 +61,13 @@ private:
   node_c *goto_statement();
   node_c *gosub_statement();
   node_c *if_statement();
-  node_c *input_statement();
-  node_c *next_statement();
-  node_c *open_statement();
-  node_c *poke_statement();
+  node_c *elif_statement();
+  node_c *else_statement();
   node_c *print_statement();
   node_c *read_statement();
   node_c *return_statement();
-  node_c *remark_statement();
 
-  std::vector<node_c*> get_statements();
+  std::vector<node_c*> statement_block();
 
   precedence_e peek_precedence();
   std::unordered_map<token_e, prefix_parse_fn> _prefix_fns;
