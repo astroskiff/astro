@@ -17,7 +17,6 @@
 namespace compiler {
 namespace front {
 
-
 //! \brief A 'page' of source code
 class page_c {
 public:
@@ -44,7 +43,7 @@ private:
   std::vector<std::string> _data;
 };
 
-}
+} // namespace front
 } // namespace compiler
 
 #endif

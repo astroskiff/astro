@@ -37,7 +37,7 @@ private:
   char peek(size_t ahead = 1);
 };
 
-}
+} // namespace front
 } // namespace compiler
 
 #endif

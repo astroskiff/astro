@@ -11,19 +11,22 @@
 namespace compiler {
 namespace front {
 
-
 class parser_c {
 public:
   enum class precedence_e {
     LOWEST,
     ASSIGN,       // =
     LOGICAL,      // || &&
+    BITWISE,      // or, xor, and, not
     EQUALS,       // ==
     LESS_GREATER, // > <
+    SHIFT,        // lsh, rsh
     SUM,          // +
     PROD,         // *
     POW,          // ^
     PREFIX,       // -a or !a
+    CALL,         // call()
+    INDEX         // []
   };
 
   parser_c();
@@ -76,13 +79,16 @@ private:
   node_c *expression(precedence_e precedence);
   node_c *prefix_expr();
   node_c *grouped_expr();
+  node_c *constructor_list();
   node_c *infix_expr(node_c *left);
   node_c *identifier();
+  node_c *call();
+  node_c *array_index();
   node_c *number();
   node_c *str();
 };
 
-}
+} // namespace front
 } // namespace compiler
 
 #endif
