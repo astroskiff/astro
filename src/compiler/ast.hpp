@@ -41,7 +41,9 @@ enum class node_type {
   FOR,
   END,
   GOTO,
-  PRINT
+  PRINT,
+  RETURN,
+  NOT_EQ
 };
 
 class location_c {

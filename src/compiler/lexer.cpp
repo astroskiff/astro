@@ -99,6 +99,22 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
       if (peek() == '=') {
         advance();
         _tokens.emplace_back(td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx}});
+      } else {
+        _tokens.emplace_back(td_pair_t{token_e::NOT, "!", {line_no, _idx}});
+      }
+      break;
+
+    case '&':
+      if (peek() == '&') {
+        advance();
+        _tokens.emplace_back(td_pair_t{token_e::AND, "&&", {line_no, _idx}});
+      }
+      break;
+
+    case '|':
+      if (peek() == '|') {
+        advance();
+        _tokens.emplace_back(td_pair_t{token_e::OR, "||", {line_no, _idx}});
       }
       break;
 

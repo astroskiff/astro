@@ -52,6 +52,7 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
     {token_e::HAT, parser_c::precedence_e::POW},
     {token_e::OR, parser_c::precedence_e::LOGICAL},
     {token_e::AND, parser_c::precedence_e::LOGICAL},
+    {token_e::NOT_EQ, parser_c::precedence_e::LOGICAL},
 };
 
 } // namespace
@@ -80,7 +81,9 @@ parser_c::parser_c() {
   _prefix_fns[token_e::STRING] = &parser_c::str;
   _prefix_fns[token_e::SUB] = &parser_c::prefix_expr;
   _prefix_fns[token_e::L_PAREN] = &parser_c::grouped_expr;
+  _prefix_fns[token_e::NOT] = &parser_c::grouped_expr;
 
+  _infix_fns[token_e::NOT_EQ] = &parser_c::infix_expr;
   _infix_fns[token_e::ADD] = &parser_c::infix_expr;
   _infix_fns[token_e::SUB] = &parser_c::infix_expr;
   _infix_fns[token_e::DIV] = &parser_c::infix_expr;
@@ -94,6 +97,7 @@ parser_c::parser_c() {
   _infix_fns[token_e::OR] = &parser_c::infix_expr;
   _infix_fns[token_e::AND] = &parser_c::infix_expr;
   _infix_fns[token_e::HAT] = &parser_c::infix_expr;
+  _infix_fns[token_e::NOT_EQ] = &parser_c::infix_expr;
 }
 
 void parser_c::prev() { _idx--; }
@@ -455,7 +459,6 @@ node_c *parser_c::print_statement()
 
   auto print_location = current_td_pair().location;
 
-
   std::vector<node_c*> body;
   while(1) {
     advance();
@@ -495,7 +498,21 @@ node_c *parser_c::read_statement()
 
 node_c *parser_c::return_statement()
 {
-  return nullptr;
+  if (current_td_pair().token != token_e::RETURN) {
+    return nullptr;
+  }
+
+  auto return_location = current_td_pair().location;
+  advance();
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Expected ;");
+    return nullptr;
+  }
+  advance();
+
+  auto return_node = new node_c(node_type::RETURN, return_location);
+  return_node->data = "return";
+  return return_node;
 };
 
 node_c *parser_c::remark_statement()
@@ -573,6 +590,9 @@ node_c *parser_c::infix_expr(node_c *left) {
     break;
   case token_e::HAT:
     node = new node_c(node_type::POW, current_td_pair().location, "^");
+    break;
+  case token_e::NOT_EQ:
+    node = new node_c(node_type::NOT_EQ, current_td_pair().location, "!=");
     break;
   default:
     die(0, "Invalid infix token hit");

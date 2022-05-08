@@ -38,9 +38,9 @@ TEST(lexer_tests, all) {
       {"read", {compiler::token_e::READ}},
       {"return", {compiler::token_e::RETURN}},
       {"rem", {compiler::token_e::REM}},
-      {"not", {compiler::token_e::NOT}},
-      {"and", {compiler::token_e::AND}},
-      {"or", {compiler::token_e::OR}},
+      {"!", {compiler::token_e::NOT}},
+      {"&&", {compiler::token_e::AND}},
+      {"||", {compiler::token_e::OR}},
       {",", {compiler::token_e::COMMA}},
       {"==", {compiler::token_e::EQ_EQ}},
       {"!=", {compiler::token_e::NOT_EQ}},
@@ -59,7 +59,7 @@ TEST(lexer_tests, all) {
       {"2.14159", {compiler::token_e::FLOAT}},
       {"'a_program_label", {compiler::token_e::LABEL}},
       {";", {compiler::token_e::SEMICOLON}},
-      {"=", {compiler::token_e::EQ}},
+      {"=", {compiler::token_e::EQ}}
   };
 
   for (auto &tc : tcs) {
