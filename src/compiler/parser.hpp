@@ -63,8 +63,6 @@ private:
   node_c *if_statement();
   node_c *elif_statement();
   node_c *else_statement();
-  node_c *print_statement();
-  node_c *read_statement();
   node_c *return_statement();
 
   std::vector<node_c *> statement_block();

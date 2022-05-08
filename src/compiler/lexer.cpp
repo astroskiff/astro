@@ -20,7 +20,6 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["else"] = token_e::ELSE;
   _reserved["elif"] = token_e::ELIF;
   _reserved["let"] = token_e::LET;
-  _reserved["print"] = token_e::PRINT;
   _reserved["read"] = token_e::READ;
   _reserved["return"] = token_e::RETURN;
   _reserved["not"] = token_e::NOT;

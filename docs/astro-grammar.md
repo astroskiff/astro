@@ -19,7 +19,6 @@ float          = {digit}+.{digit}+
 <statement> := GOTO ID ';'
              | GOSUB ID ';'
              | RETURN ';'
-             | PRINT <expression-list> ';'
              | LET ID [<type-specifier>] '=' <expression>,
              | <for-loop>
              | <if>
@@ -36,9 +35,6 @@ float          = {digit}+.{digit}+
 <statement_block> := '{' <statement>+ '}'
 
 <expression> := <prefix> [<infix+>]
-
-<expression-list> := <expression>
-                    | ',' <expression-list>
 
 <prefix> := <id>
           | <integer> 

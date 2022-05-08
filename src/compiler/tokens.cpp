@@ -28,8 +28,6 @@ std::string token_to_str(const td_pair_t &td) {
     return show("THEN", td.location);
   case token_e::LET:
     return show("LET", td.location);
-  case token_e::PRINT:
-    return show("PRINT", td.location);
   case token_e::OCTOTHORP:
     return show("OCTOTHORP", td.location);
   case token_e::READ:

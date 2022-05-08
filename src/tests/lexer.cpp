@@ -28,7 +28,6 @@ TEST(lexer_tests, all) {
       {"else", {compiler::token_e::ELSE}},
       {"elif", {compiler::token_e::ELIF}},
       {"let", {compiler::token_e::LET}},
-      {"print", {compiler::token_e::PRINT}},
       {"#", {compiler::token_e::OCTOTHORP}},
       {"read", {compiler::token_e::READ}},
       {"return", {compiler::token_e::RETURN}},

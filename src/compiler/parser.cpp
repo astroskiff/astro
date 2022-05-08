@@ -65,7 +65,6 @@ parser_c::parser_c() {
       std::bind(&parser_c::goto_statement, this),
       std::bind(&parser_c::gosub_statement, this),
       std::bind(&parser_c::if_statement, this),
-      std::bind(&parser_c::print_statement, this),
       std::bind(&parser_c::return_statement, this),
   };
 
@@ -534,47 +533,6 @@ node_c *parser_c::else_statement() {
   std::cout << "Returning the else\n";
   return conditional;
 }
-
-node_c *parser_c::print_statement() {
-
-  if (current_td_pair().token != token_e::PRINT) {
-    return nullptr;
-  }
-
-  auto print_location = current_td_pair().location;
-
-  std::vector<node_c *> body;
-  while (1) {
-    advance();
-
-    auto expr = expression(precedence_e::LOWEST);
-    if (!expr) {
-      die(0, "Malformed expression ");
-      return nullptr;
-    }
-
-    advance();
-    body.push_back(expr);
-
-    if (current_td_pair().token != token_e::COMMA) {
-      break;
-    }
-  }
-
-  if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Expected ;");
-    return nullptr;
-  }
-
-  advance();
-
-  auto print_node = new bodied_node_c(node_type_e::PRINT, print_location, body);
-  print_node->data = "print";
-
-  return print_node;
-};
-
-node_c *parser_c::read_statement() { return nullptr; };
 
 node_c *parser_c::return_statement() {
   if (current_td_pair().token != token_e::RETURN) {

@@ -18,7 +18,6 @@ enum class token_e {
   ELIF,
   ELSE,
   LET,
-  PRINT,
   OCTOTHORP,
   READ,
   RETURN,

@@ -42,7 +42,6 @@ enum class node_type_e {
   FOR,
   END,
   GOTO,
-  PRINT,
   RETURN,
   NOT_EQ,
   CONDITIONAL
