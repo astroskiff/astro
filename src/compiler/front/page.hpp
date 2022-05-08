@@ -15,6 +15,8 @@
 #include <vector>
 
 namespace compiler {
+namespace front {
+
 
 //! \brief A 'page' of source code
 class page_c {
@@ -42,6 +44,7 @@ private:
   std::vector<std::string> _data;
 };
 
+}
 } // namespace compiler
 
 #endif

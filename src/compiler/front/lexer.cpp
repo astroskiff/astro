@@ -7,6 +7,8 @@
 #include <locale>
 
 namespace compiler {
+namespace front {
+
 
 lexer_c::lexer_c() : _idx(0) {
   _reserved["id"] = token_e::ID;
@@ -244,4 +246,5 @@ char lexer_c::peek(size_t ahead) {
   return _current_line[_idx + ahead];
 }
 
+}
 } // namespace compiler

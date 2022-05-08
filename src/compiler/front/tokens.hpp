@@ -1,10 +1,12 @@
 #ifndef COMPILER_TOKENS_HPP
 #define COMPILER_TOKENS_HPP
 
-#include "ast.hpp"
+#include "compiler/ast.hpp"
 #include <string>
 
 namespace compiler {
+namespace front {
+
 
 enum class token_e {
   ASM,
@@ -62,6 +64,7 @@ struct td_pair_t {
 //! \brief Print a token data pair
 extern std::string token_to_str(const td_pair_t &td);
 
+}
 } // namespace compiler
 
 #endif

@@ -43,20 +43,21 @@ if(WITH_ASAN)
 endif()
 
 set(COMPILER_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/lexer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/parser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/page.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/tokens.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/lexer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/parser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/page.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/ast.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tokens.cpp
 )
 
 set(ASTRO_SOURCES
   ${COMPILER_SOURCES}
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR/compiler/front})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR/compiler})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME}
         ${ASTRO_SOURCES}

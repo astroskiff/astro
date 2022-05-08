@@ -1,7 +1,7 @@
 #ifndef COMPILER_PARSER_HPP
 #define COMPILER_PARSER_HPP
 
-#include "ast.hpp"
+#include "compiler/ast.hpp"
 #include "tokens.hpp"
 #include <vector>
 
@@ -9,6 +9,8 @@
 #include <unordered_map>
 
 namespace compiler {
+namespace front {
+
 
 class parser_c {
 public:
@@ -80,6 +82,7 @@ private:
   node_c *str();
 };
 
+}
 } // namespace compiler
 
 #endif

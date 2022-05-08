@@ -7,6 +7,7 @@
 #include <string>
 
 namespace compiler {
+namespace front {
 
 namespace {
 
@@ -744,4 +745,5 @@ node_c *parser_c::str() {
   return nullptr;
 }
 
+}
 } // namespace compiler

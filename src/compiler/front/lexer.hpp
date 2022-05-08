@@ -8,6 +8,7 @@
 #include "tokens.hpp"
 
 namespace compiler {
+namespace front {
 
 //! \brief Lexer
 class lexer_c {
@@ -36,6 +37,7 @@ private:
   char peek(size_t ahead = 1);
 };
 
+}
 } // namespace compiler
 
 #endif

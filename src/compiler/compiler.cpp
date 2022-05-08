@@ -1,5 +1,5 @@
 #include "compiler.hpp"
-#include "parser.hpp"
+#include "front/parser.hpp"
 #include <filesystem>
 #include <iostream>
 
@@ -15,11 +15,11 @@ compile_project(const targets_e target,
     return {};
   }
 
-  std::vector<td_pair_t> tokens;
+  std::vector<front::td_pair_t> tokens;
 
   //  Create the parser with cdt.
   //
-  parser_c parser;
+  front::parser_c parser;
   std::vector<node_c *> instruction = parser.parse_file(file);
 
   std::cout << "Got " << instruction.size() << " items\n";
