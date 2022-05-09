@@ -19,6 +19,7 @@ extern void free_nodes(node_c *node);
 enum class node_type_e {
   ASM,
   LET,
+  REASSIGN,
   ID,
   VARIABLE,
   ADD,
@@ -48,7 +49,6 @@ enum class node_type_e {
   STRING,
   LABEL,
   FOR,
-  END,
   GOTO,
   RETURN,
   NOT_EQ,

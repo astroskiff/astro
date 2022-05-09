@@ -76,6 +76,7 @@ parser_c::parser_c() {
       std::bind(&parser_c::if_statement, this),
       std::bind(&parser_c::return_statement, this),
       std::bind(&parser_c::asm_statement, this),
+      std::bind(&parser_c::reassign_statement, this),
   };
 
   _prefix_fns[token_e::ID] = &parser_c::identifier;
@@ -612,6 +613,39 @@ node_c *parser_c::return_statement() {
   return return_node;
 };
 
+node_c *parser_c::reassign_statement()
+{
+  if ( !(current_td_pair().token == token_e::ID && peek().token == token_e::EQ )) {
+    return nullptr;
+  }
+
+  auto location = current_td_pair().location;
+  auto id = current_td_pair().data;
+
+  advance(); // Past id
+  advance(); // Past eq
+
+  auto exp = expression(precedence_e::LOWEST);
+  if (!exp) {
+    die(0, "Invalid expression");
+    return nullptr;
+  }
+  advance();
+
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Missing ';'");
+    return nullptr;
+  }
+  advance();
+  
+  auto node = new node_c(node_type_e::REASSIGN, location);
+  node->data = "reassign";
+  auto var = new variable_c(location, id);
+  append_node(node, var);
+  append_node(node, exp);
+  return node;
+}
+
 // // // // // // // // // // // // // // // // // // // // // //
 //                                                             //
 //                Expression parsing logic                     //
@@ -785,8 +819,8 @@ node_c *parser_c::identifier() {
   if (peek().token == token_e::R_BRACKET) {
     return array_index();
   }
-
-  return new node_c(node_type_e::ID, current_td_pair().location,
+  
+  return new variable_c(current_td_pair().location,
                     current_td_pair().data);
 }
 

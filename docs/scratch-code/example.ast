@@ -1,8 +1,18 @@
 ```
 
+//  For machine specific functionality we can move information using asm into the return slots of functions, 
+//  or onto operational stacks for variable assignment. Doing this we can setup vm drivers 
+//
+//
+
 asm {
   "mov i0 @3"
   "mov i1 @2"
+}
+
+def add(lhs:u64, rhs:u64) -> u8 {
+
+  return lhs + rhs;
 }
 
 'my_label
