@@ -184,9 +184,10 @@ std::vector<node_c *> parser_c::parse_file(const std::string &file) {
   while (_parser_okay && _idx < _tokens.size()) {
     //  Check for top level items
     //
-    auto item = statement();
+
+    auto item = function();
     if (!item) {
-      die(0, "Invalid statement"); // TODO: Update this error code
+      die(0, "Failed to build function");
       return {};
     }
 
@@ -205,21 +206,6 @@ std::vector<node_c *> parser_c::parse_file(const std::string &file) {
   }
 
   return results;
-}
-
-node_c *parser_c::statement() {
-  for (auto &&func : _statement_functions) {
-    if (!_parser_okay) {
-      return nullptr;
-    }
-
-    mark();
-    if (auto result = func(); result) {
-      return result;
-    }
-    reset();
-  }
-  return nullptr;
 }
 
 node_c *parser_c::let_statement() {
@@ -287,6 +273,63 @@ node_c *parser_c::label_statement() {
                                current_td_pair().data);
   advance();
   return label_node;
+}
+
+std::vector<node_c *> parser_c::function_parameters() {
+
+  if (current_td_pair().token != token_e::L_PAREN) {
+    die(0, "Expected '('");
+    return {};
+  }
+
+  advance();
+
+  // Could be empty
+  if (current_td_pair().token == token_e::R_PAREN) {
+    advance();
+    return {};
+  }
+
+  // Could have params (param:type, param:type)
+  std::vector<node_c *> results;
+  while (1) {
+    if (current_td_pair().token != token_e::ID) {
+      die(0, "Expected parameter identifier");
+      break;
+    }
+    auto param_name = current_td_pair().data;
+    auto param_loc = current_td_pair().location;
+    advance();
+
+    if (current_td_pair().token != token_e::COLON) {
+      die(0, "Expected ':'");
+      break;
+    }
+    advance();
+
+    if (current_td_pair().token != token_e::ID) {
+      die(0, "Expected parameter type identifier");
+      break;
+    }
+    auto type_name = current_td_pair().data;
+    advance();
+
+    results.push_back(new variable_c(param_loc, param_name, type_name));
+
+    // If the next one is an R_PAREN we are done
+    if (current_td_pair().token == token_e::R_PAREN) {
+      break;
+    }
+
+    // If its a comma we get to go around again
+    if (current_td_pair().token != token_e::COMMA) {
+      die(0, "Expected ','");
+      break;
+    }
+    advance();
+  }
+  advance();
+  return results;
 }
 
 std::vector<node_c *> parser_c::statement_block() {
@@ -513,6 +556,66 @@ node_c *parser_c::asm_statement() {
   return asm_node;
 }
 
+node_c *parser_c::function() {
+  if (current_td_pair().token != token_e::FN) {
+    return nullptr;
+  }
+  auto fn_loc = current_td_pair().location;
+  advance();
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected function name");
+    return nullptr;
+  }
+
+  auto func_name = current_td_pair().data;
+  auto func_name_loc = current_td_pair().location;
+  advance();
+
+  auto params = function_parameters();
+
+  if (!_parser_okay) {
+    for (auto i : params) {
+      free_nodes(i);
+    }
+    return nullptr;
+  }
+
+  if (current_td_pair().token != token_e::ARROW) {
+    die(0, "Expected '->' to indicate return type");
+    for (auto i : params) {
+      free_nodes(i);
+    }
+    return nullptr;
+  }
+  advance();
+
+  if (current_td_pair().token != token_e::ID) {
+    die(0, "Expected '->' to indicate return type");
+    for (auto i : params) {
+      free_nodes(i);
+    }
+    return nullptr;
+  }
+  auto return_type_name = current_td_pair().data;
+  auto return_type_loc = current_td_pair().location;
+  advance();
+
+  auto statements = statement_block();
+  if (!_parser_okay) {
+    for (auto i : params) {
+      free_nodes(i);
+    }
+    for (auto i : statements) {
+      free_nodes(i);
+    }
+    return nullptr;
+  }
+
+  return new function_node_c(func_name_loc, func_name, statements, params,
+                             return_type_name, return_type_loc);
+}
+
 node_c *parser_c::if_statement() {
   if (current_td_pair().token != token_e::IF) {
     return nullptr;
@@ -601,21 +704,37 @@ node_c *parser_c::return_statement() {
   }
 
   auto return_location = current_td_pair().location;
+
   advance();
+  node_c *return_expression{nullptr};
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Expected ;");
-    return nullptr;
+
+    std::cout << "looking for exp\n";
+
+    return_expression = expression(precedence_e::LOWEST);
+    if (!return_expression) {
+      die(0, "Invalid return expression");
+      return nullptr;
+    }
+    advance();
+
+    if (current_td_pair().token != token_e::SEMICOLON) {
+      die(0, "Expected ;");
+      free_nodes(return_expression);
+      return nullptr;
+    }
   }
   advance();
 
   auto return_node = new node_c(node_type_e::RETURN, return_location);
   return_node->data = "return";
+  append_node(return_node, return_expression);
   return return_node;
 };
 
-node_c *parser_c::reassign_statement()
-{
-  if ( !(current_td_pair().token == token_e::ID && peek().token == token_e::EQ )) {
+node_c *parser_c::reassign_statement() {
+  if (!(current_td_pair().token == token_e::ID &&
+        peek().token == token_e::EQ)) {
     return nullptr;
   }
 
@@ -637,7 +756,7 @@ node_c *parser_c::reassign_statement()
     return nullptr;
   }
   advance();
-  
+
   auto node = new node_c(node_type_e::REASSIGN, location);
   node->data = "reassign";
   auto var = new variable_c(location, id);
@@ -819,9 +938,8 @@ node_c *parser_c::identifier() {
   if (peek().token == token_e::R_BRACKET) {
     return array_index();
   }
-  
-  return new variable_c(current_td_pair().location,
-                    current_td_pair().data);
+
+  return new variable_c(current_td_pair().location, current_td_pair().data);
 }
 
 node_c *parser_c::call() {

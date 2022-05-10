@@ -9,6 +9,27 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     return;
   }
 
+  if (n->type == node_type_e::FN) {
+    std::cout << "function: " << n->data << std::endl;
+    auto fn = reinterpret_cast<function_node_c *>(n);
+
+    if (!fn->params.empty()) {
+      std::cout << "params" << std::endl;
+    }
+    for (auto fnn : fn->params) {
+      display_expr_tree(" ", fnn);
+    }
+
+    if (!fn->body.empty()) {
+      std::cout << "body" << std::endl;
+    }
+    for (auto fnn : fn->body) {
+      display_expr_tree(" ", fnn);
+    }
+    std::cout << std::endl;
+    return;
+  }
+
   if (n->type == node_type_e::FOR) {
     std::cout << " " << n->data << std::endl;
     auto for_loop = reinterpret_cast<for_loop_c *>(n);
@@ -92,6 +113,17 @@ void free_nodes(node_c *node) {
     free_nodes(for_loop->to);
     free_nodes(for_loop->step);
   }
+
+  if (node->type == node_type_e::FN) {
+    auto fn = reinterpret_cast<function_node_c *>(node);
+    for (auto n : fn->params) {
+      free_nodes(n);
+    }
+    for (auto n : fn->body) {
+      free_nodes(n);
+    }
+  }
+
   free_nodes(node->left);
   free_nodes(node->right);
   delete node;

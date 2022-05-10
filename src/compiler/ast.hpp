@@ -17,6 +17,7 @@ extern void append_node(node_c *to, node_c *from);
 extern void free_nodes(node_c *node);
 
 enum class node_type_e {
+  FN,
   ASM,
   LET,
   REASSIGN,
@@ -80,6 +81,9 @@ class variable_c : public node_c {
 public:
   variable_c(const location_c &loc, const std::string data)
       : node_c(node_type_e::VARIABLE, loc, data) {}
+  variable_c(const location_c &loc, const std::string data,
+             const std::string type)
+      : node_c(node_type_e::VARIABLE, loc, data), type_name(type) {}
 
   std::string type_name;
 };
@@ -101,6 +105,22 @@ public:
   bodied_node_c(const node_type_e type, const location_c &loc,
                 const std::vector<node_c *> &body)
       : node_c(type, loc), body(body) {}
+  std::vector<node_c *> body;
+};
+
+class function_node_c : public node_c {
+public:
+  function_node_c(const location_c &loc, const std::string name,
+                  const std::vector<node_c *> &body,
+                  const std::vector<node_c *> &params,
+                  const std::string return_type_name,
+                  const location_c &return_type_loc)
+      : node_c(node_type_e::FN, loc, name), body(body), params(params),
+        return_type(return_type_name), return_type_loc(return_type_loc) {}
+
+  std::string return_type;
+  location_c return_type_loc;
+  std::vector<node_c *> params;
   std::vector<node_c *> body;
 };
 

@@ -66,6 +66,8 @@ TEST(lexer_tests, all) {
       {"[", {compiler::front::token_e::L_BRACKET}},
       {"]", {compiler::front::token_e::R_BRACKET}},
       {"%", {compiler::front::token_e::MOD}},
+      {"fn", {compiler::front::token_e::FN}},
+      {"->", {compiler::front::token_e::ARROW}},
   };
 
   for (auto &tc : tcs) {
