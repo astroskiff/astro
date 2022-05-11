@@ -8,6 +8,8 @@ namespace compiler {
 namespace front {
 
 enum class token_e {
+  FN,
+  ARROW,
   ASM,
   ID,
   FOR,

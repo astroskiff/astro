@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <iostream>
 
-#include "shared/types.hpp"
 #include "shared/expression_eval.hpp"
+#include "shared/types.hpp"
 
 namespace compiler {
 
@@ -30,9 +30,9 @@ compile_project(const targets_e target,
   for (auto i : instruction) {
     display_expr_tree("", i);
 
-    if (i->type == compiler::node_type_e::REASSIGN ) {
+    if (i->type == compiler::node_type_e::REASSIGN) {
       auto results = shared::evaluate_expression(i->right);
-      for(auto r : results.execution_order) {
+      for (auto r : results.execution_order) {
         std::cout << r->data << " ";
       }
       std::cout << std::endl;

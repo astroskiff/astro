@@ -33,6 +33,7 @@ lexer_c::lexer_c() : _idx(0) {
   _reserved["not"] = token_e::BITWISE_NOT;
   _reserved["lsh"] = token_e::LSH;
   _reserved["rsh"] = token_e::RSH;
+  _reserved["fn"] = token_e::FN;
 }
 
 void lexer_c::clear() {
@@ -148,7 +149,12 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
       break;
 
     case '-':
-      _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
+      if (peek() == '>') {
+        advance();
+        _tokens.emplace_back(td_pair_t{token_e::ARROW, "->", {line_no, _idx}});
+      } else {
+        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
+      }
       break;
 
     case '/':

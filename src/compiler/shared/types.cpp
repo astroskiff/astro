@@ -2,12 +2,6 @@
 
 #include "compiler/ast.hpp"
 
-namespace compiler 
-{
-namespace shared
-{
-
-
-
-}
-}
+namespace compiler {
+namespace shared {}
+} // namespace compiler

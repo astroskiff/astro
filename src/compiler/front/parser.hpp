@@ -59,7 +59,7 @@ private:
 
   std::vector<std::function<node_c *()>> _statement_functions;
 
-  node_c *statement();
+  node_c *function();
   node_c *let_statement();
   node_c *label_statement();
   node_c *for_statement();
@@ -72,7 +72,9 @@ private:
   node_c *asm_statement();
   node_c *reassign_statement();
 
+  std::vector<node_c *> function_parameters();
   std::vector<node_c *> statement_block();
+  std::vector<node_c *> call_parameters();
 
   precedence_e peek_precedence();
   std::unordered_map<token_e, prefix_parse_fn> _prefix_fns;

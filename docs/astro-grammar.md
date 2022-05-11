@@ -14,7 +14,17 @@ string         = '"'{String Chars}*'"'
 integer        = {digit}+ 
 float          = {digit}+.{digit}+ 
 
-<entry> := <statements>+
+<entry> := <function>+
+
+<function> FN ID '(' [<function_params>] ')' '->' ID <statement_block>
+
+<function_params> := <variable_type_pair>
+                   | <function_params> ',' <variable_type_pair>
+
+<variable_type_pair> := ID ':' ID
+
+<string_block> := '{' <string>+ '}'
+<statement_block> := '{' <statement>+ '}'
 
 <statement> := GOTO ID ';'
              | GOSUB ID ';'
@@ -33,8 +43,6 @@ float          = {digit}+.{digit}+
 <elseif> := ELIF <expression> <statement_block> 
 <else> := ELSE <statement_block> 
 
-<string_block> := '{' <string>+ '}'
-<statement_block> := '{' <statement>+ '}'
 
 <expression> := <prefix> [<infix+>]
 
