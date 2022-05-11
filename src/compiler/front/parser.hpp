@@ -60,6 +60,7 @@ private:
   std::vector<std::function<node_c *()>> _statement_functions;
 
   node_c *function();
+  node_c *call_statement();
   node_c *let_statement();
   node_c *label_statement();
   node_c *for_statement();

@@ -1,0 +1,17 @@
+fn main() -> i8 {
+  let a = 0;
+  if a > 0 {
+    let b = 4;
+  } elif a == 0 {
+    let d = 3;
+  } elif a == 1 {
+    let d = 9;
+  } else {
+  }
+  if b == 3 {
+  }
+  if b == 3 {
+  } else {
+  }
+  return 0;
+}

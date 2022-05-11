@@ -68,6 +68,7 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
 
 parser_c::parser_c() {
   _statement_functions = {
+      std::bind(&parser_c::call_statement, this),
       std::bind(&parser_c::let_statement, this),
       std::bind(&parser_c::label_statement, this),
       std::bind(&parser_c::for_statement, this),
@@ -153,11 +154,11 @@ const td_pair_t &parser_c::peek(const std::size_t ahead) const {
 void parser_c::die(uint64_t error_no, std::string error) {
   //  Todo : Send this data to the reporter
   //
-  std::cerr << "Error: " << error_no << " | " << error << " .. "
+  std::cerr << "\nError: " << error_no << " | " << error << " .. "
             << current_td_pair().location.line << ", "
             << current_td_pair().location.col << std::endl;
 
-  std::cerr << "Current token : " << token_to_str(current_td_pair());
+  std::cerr << "Current token : " << token_to_str(current_td_pair()) << std::endl;
   _parser_okay = false;
 }
 
@@ -292,7 +293,7 @@ std::vector<node_c *> parser_c::function_parameters() {
 
   // Could have params (param:type, param:type)
   std::vector<node_c *> results;
-  while (1) {
+  while (_parser_okay) {
     if (current_td_pair().token != token_e::ID) {
       die(0, "Expected parameter identifier");
       break;
@@ -341,7 +342,7 @@ std::vector<node_c *> parser_c::statement_block() {
 
   std::vector<node_c *> results;
 
-  while (1) {
+  while (_parser_okay) {
     if (current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
       break;
     }
@@ -384,7 +385,7 @@ std::vector<node_c *> parser_c::call_parameters() {
 
   // Could have params (expression, expression)
   std::vector<node_c *> results;
-  while (1) {
+  while (_parser_okay) {
 
     auto expr = expression(precedence_e::LOWEST);
     if (!expr) {
@@ -566,7 +567,7 @@ node_c *parser_c::asm_statement() {
 
   std::vector<node_c *> body;
 
-  while (1) {
+  while (_parser_okay) {
     advance();
 
     if (current_td_pair().token == token_e::R_BRACE || !_parser_okay) {
@@ -656,6 +657,36 @@ node_c *parser_c::function() {
 
   return new function_node_c(func_name_loc, func_name, statements, params,
                              return_type_name, return_type_loc);
+}
+
+node_c *parser_c::call_statement()
+{
+  if (current_td_pair().token != token_e::ID) {
+    return nullptr;
+  }
+  auto function_name = current_td_pair().data;
+  auto location = current_td_pair().location;
+  advance();
+
+  auto params = call_parameters();
+  if (!_parser_okay) {
+    for (auto item : params) {
+      free_nodes(item);
+    }
+    return nullptr;
+  }
+
+  advance();
+  if (current_td_pair().token != token_e::SEMICOLON) {
+    die(0, "Expected ';'");
+    for (auto item : params) {
+      free_nodes(item);
+    }
+    return nullptr;
+  }
+
+  advance();
+  return new bodied_node_c(node_type_e::CALL, location, function_name, params);
 }
 
 node_c *parser_c::if_statement() {
