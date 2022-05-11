@@ -252,7 +252,7 @@ node_c *parser_c::let_statement() {
   advance();
 
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Missing ';'");
+    die(0, "Missing ';' at end of 'let' statement");
     return nullptr;
   }
   advance();
@@ -367,6 +367,49 @@ std::vector<node_c *> parser_c::statement_block() {
 
   return results;
 };
+
+std::vector<node_c *> parser_c::call_parameters() {
+
+  if (current_td_pair().token != token_e::L_PAREN) {
+    die(0, "CALL Expected '('");
+    return {};
+  }
+
+  advance();
+
+  // Could be empty
+  if (current_td_pair().token == token_e::R_PAREN) {
+    advance();
+    return {};
+  }
+
+  // Could have params (expression, expression)
+  std::vector<node_c *> results;
+  while (1) {
+
+    auto expr = expression(precedence_e::LOWEST);
+    if (!expr) {
+      die(0, "Malformed expression ");
+      return {};
+    }
+
+    results.push_back(expr);
+    advance();
+
+    // If the next one is an R_PAREN we are done
+    if (current_td_pair().token == token_e::R_PAREN) {
+      break;
+    }
+
+    // If its a comma we get to go around again
+    if (current_td_pair().token != token_e::COMMA) {
+      die(0, "Expected ','");
+      break;
+    }
+    advance();
+  }
+  return results;
+}
 
 node_c *parser_c::for_statement() {
   if (current_td_pair().token != token_e::FOR) {
@@ -709,8 +752,6 @@ node_c *parser_c::return_statement() {
   node_c *return_expression{nullptr};
   if (current_td_pair().token != token_e::SEMICOLON) {
 
-    std::cout << "looking for exp\n";
-
     return_expression = expression(precedence_e::LOWEST);
     if (!return_expression) {
       die(0, "Invalid return expression");
@@ -943,8 +984,20 @@ node_c *parser_c::identifier() {
 }
 
 node_c *parser_c::call() {
-  die(0, "Calls in expressions not yet supported");
-  return nullptr;
+  // Only called by a place that identifies the current item as an ID
+  auto function_name = current_td_pair().data;
+  auto location = current_td_pair().location;
+  advance();
+
+  auto params = call_parameters();
+  if (!_parser_okay) {
+    for (auto item : params) {
+      free_nodes(item);
+      return nullptr;
+    }
+  }
+
+  return new bodied_node_c(node_type_e::CALL, location, function_name, params);
 }
 
 node_c *parser_c::array_index() {

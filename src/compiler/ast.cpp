@@ -43,15 +43,16 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
     return;
   }
 
-  if (n->type == node_type_e::CONDITIONAL || n->type == node_type_e::ASM) {
+  if (n->type == node_type_e::CONDITIONAL || n->type == node_type_e::ASM ||
+      n->type == node_type_e::CALL) {
     std::cout << prefix;
     std::cout << (is_left ? "├──" : "└──");
     std::cout << " " << n->data << std::endl;
     display_expr_tree(prefix + (is_left ? "│   " : "    "), n->left, true);
     auto print = reinterpret_cast<bodied_node_c *>(n);
-    std::cout << " ├── body " << std::endl;
+    std::cout << prefix << " ├──< body >" << std::endl;
     for (auto body_node : print->body) {
-      display_expr_tree("    ", body_node);
+      display_expr_tree(prefix + " ", body_node);
     }
     display_expr_tree(prefix + (is_left ? "│   " : "    "), n->right, false);
     return;
@@ -60,7 +61,7 @@ void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
   if (n->type == node_type_e::VARIABLE) {
     auto v = reinterpret_cast<variable_c *>(n);
     std::string type = v->type_name.empty() ? "unknown" : v->type_name;
-    std::cout << " " << n->data << " (type:" << type << ")" << std::endl;
+    // std::cout << prefix << n->data << " (type:" << type << ")" << std::endl;
     std::cout << prefix;
     std::cout << (is_left ? "├──" : "└──");
     std::cout << " " << n->data << std::endl;

@@ -74,6 +74,7 @@ private:
 
   std::vector<node_c *> function_parameters();
   std::vector<node_c *> statement_block();
+  std::vector<node_c *> call_parameters();
 
   precedence_e peek_precedence();
   std::unordered_map<token_e, prefix_parse_fn> _prefix_fns;

@@ -18,6 +18,7 @@ extern void free_nodes(node_c *node);
 
 enum class node_type_e {
   FN,
+  CALL,
   ASM,
   LET,
   REASSIGN,
@@ -102,6 +103,9 @@ class bodied_node_c : public node_c {
 public:
   bodied_node_c(const node_type_e type, const location_c &loc)
       : node_c(type, loc) {}
+  bodied_node_c(const node_type_e type, const location_c &loc,
+                const std::string name, const std::vector<node_c *> &body)
+      : node_c(type, loc, name), body(body) {}
   bodied_node_c(const node_type_e type, const location_c &loc,
                 const std::vector<node_c *> &body)
       : node_c(type, loc), body(body) {}
