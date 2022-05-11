@@ -25,11 +25,10 @@ compile_project(const targets_e target,
   front::parser_c parser;
   std::vector<node_c *> instruction = parser.parse_file(file);
 
-
   //  If the parser is dead we need to die
-  //   - If the option for parse only is set we 
+  //   - If the option for parse only is set we
   //     exit success iff the parser is okay
-  if(!parser.is_okay()) {
+  if (!parser.is_okay()) {
     exit(EXIT_FAILURE);
   } else if (opts.parse_only) {
     std::cout << "Got " << instruction.size() << " items\n";
@@ -45,8 +44,6 @@ compile_project(const targets_e target,
     }
     exit(EXIT_SUCCESS);
   }
-
-
 
   return {};
 }

@@ -10,17 +10,15 @@ int main(int argc, char **argv) {
   compiler::options_t opts;
 
   std::string file;
-  for(size_t i = 0; i < args.size(); i++) {
+  for (size_t i = 0; i < args.size(); i++) {
     if (args[i] == "-p" || args[i] == "--parse-only") {
       opts.parse_only = true;
       continue;
     }
 
-
-
     // If it isn't an option it is a file
 
-    if(file.empty()) {
+    if (file.empty()) {
       file = args[i];
     }
   }

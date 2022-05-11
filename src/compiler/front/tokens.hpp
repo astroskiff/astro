@@ -2,6 +2,7 @@
 #define COMPILER_TOKENS_HPP
 
 #include "compiler/ast.hpp"
+#include "compiler/shared/common.hpp"
 #include <string>
 
 namespace compiler {
@@ -70,7 +71,7 @@ enum class token_e {
 struct td_pair_t {
   token_e token;
   std::string data;
-  location_c location;
+  shared::location_c location;
 };
 
 //! \brief Print a token data pair

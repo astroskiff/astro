@@ -1,6 +1,7 @@
 #ifndef COMPILER_EXP_EVAL_HPP
 #define COMPILER_EXP_EVAL_HPP
 
+#include "compiler/shared/common.hpp"
 #include "compiler/shared/types.hpp"
 #include <string>
 #include <vector>
@@ -15,7 +16,7 @@ namespace shared {
 
 struct eval_error_t {
   std::string error;
-  compiler::location_c *location;
+  compiler::shared::location_c *location;
 };
 
 struct eval_results_t {

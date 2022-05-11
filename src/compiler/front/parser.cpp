@@ -1,20 +1,22 @@
 #include "parser.hpp"
+#include "compiler/shared/page.hpp"
 #include "lexer.hpp"
-#include "page.hpp"
 #include "tokens.hpp"
 #include <iostream>
 #include <limits>
 #include <string>
+#include <tuple>
 
 namespace compiler {
 namespace front {
 
 namespace {
 
-std::vector<td_pair_t> read_and_lex_file(const std::string &file) {
+std::tuple<std::vector<td_pair_t>, shared::page_c>
+read_and_lex_file(const std::string &file) {
 
   std::vector<td_pair_t> result;
-  page_c file_data;
+  shared::page_c file_data;
   if (!file_data.load_page(file)) {
     std::cerr << "Unable to load file : " << file << std::endl;
     return {};
@@ -33,7 +35,7 @@ std::vector<td_pair_t> read_and_lex_file(const std::string &file) {
     auto tokens = lexer.lex(line, line_data);
     result.insert(result.end(), tokens.begin(), tokens.end());
   }
-  return result;
+  return {result, file_data};
 }
 
 td_pair_t error_token = {token_e::ERT, {}, {0, 0}};
@@ -158,7 +160,8 @@ void parser_c::die(uint64_t error_no, std::string error) {
             << current_td_pair().location.line << ", "
             << current_td_pair().location.col << std::endl;
 
-  std::cerr << "Current token : " << token_to_str(current_td_pair()) << std::endl;
+  std::cerr << "Current token : " << token_to_str(current_td_pair())
+            << std::endl;
   _parser_okay = false;
 }
 
@@ -175,7 +178,9 @@ std::vector<node_c *> parser_c::parse_file(const std::string &file) {
   _parser_okay = true;
   _source_name = file;
 
-  _tokens = read_and_lex_file(file);
+  auto [tokens, page] = read_and_lex_file(file);
+  _tokens = tokens;
+  _pages[page.get_file()] = page;
 
   if (_tokens.empty()) {
     return {};
@@ -659,8 +664,7 @@ node_c *parser_c::function() {
                              return_type_name, return_type_loc);
 }
 
-node_c *parser_c::call_statement()
-{
+node_c *parser_c::call_statement() {
   if (current_td_pair().token != token_e::ID) {
     return nullptr;
   }

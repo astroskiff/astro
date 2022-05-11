@@ -2,6 +2,7 @@
 #define COMPILER_PARSER_HPP
 
 #include "compiler/ast.hpp"
+#include "compiler/shared/page.hpp"
 #include "tokens.hpp"
 #include <vector>
 
@@ -45,6 +46,7 @@ private:
   bool _parsing_module{false};
   std::vector<td_pair_t> _tokens;
   std::string _source_name;
+  std::unordered_map<std::string, shared::page_c> _pages;
 
   void prev();
   void advance();
