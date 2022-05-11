@@ -1,0 +1,67 @@
+fn add(lhs:i64, rhs:i64) -> i64 {
+  return lhs + rhs;
+}
+
+fn something() -> i8 {
+  return 10;
+}
+
+fn do_something() -> non {
+
+  return;
+}
+
+fn calls() -> i8 {
+  let a = 1 + add(4, 4 + a * 3);
+  let b = something();
+  let c = something() + a;
+  let d = b + something();
+  let e = b + something() + a + 1;
+  let f = b + add(something(), add(2,4)) + a + 1;
+  do_something();
+  return 0;
+}
+
+fn main() -> i8 {
+
+  asm {
+    "mov i0 @3"
+    "mov i1 @2"
+  }
+
+  'my_label
+  return;
+
+  let a = (10 + 3) * 2 - a ^ 3;
+  let b = -a % 10 lsh 66;
+
+  let s:u8 = 4;
+
+  for a = 0 to 100 step 2 {
+    let b = 4;
+    let c = 5;
+  }
+
+  goto my_label;
+  gosub my_label;
+
+  if a > 0 {
+    let b = 4;
+  } elif a == 0 {
+    let d = 3;
+  } elif a == 1 {
+    let d = 9;
+  } else {
+  }
+
+  if b == 3 {
+  }
+
+  if b == 3 {
+
+  } else {
+
+  }
+
+  return 0;
+}

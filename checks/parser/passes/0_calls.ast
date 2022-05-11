@@ -1,0 +1,28 @@
+fn add(lhs:i64, rhs:i64) -> i64 {
+  return lhs + rhs;
+}
+
+fn something() -> i8 {
+  return 10;
+}
+
+fn do_something() -> non {
+
+  return;
+}
+
+fn calls() -> i8 {
+  let a = 1 + add(4, 4 + a * 3);
+  let b = something();
+  let c = something() + a;
+  let d = b + something();
+  let e = b + something() + a + 1;
+  let f = b + add(something(), add(2,4)) + a + 1;
+  do_something();
+  return 0;
+}
+
+fn main() -> i8 {
+  calls();
+  return 0;
+}

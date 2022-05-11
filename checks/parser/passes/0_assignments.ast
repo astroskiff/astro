@@ -1,0 +1,7 @@
+fn main() -> i8 {
+  let a = (10 + 3) * 2 - a ^ 3;
+  let b = -a % 10 lsh 66;
+  let s:u8 = 4;
+  s = a + b % c rsh 8;
+  return 0;
+}

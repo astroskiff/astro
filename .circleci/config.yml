@@ -36,3 +36,6 @@ jobs:
       - run:
           name: ASAN Build
           command: 'cd build-asan && cmake ../src -DCMAKE_BUILD_TYPE=Release -DWITH_ASAN=ON && make -j5'
+      - run:
+          name: Parser Check
+          command: 'cd checks/parser && python3 run.py ../../build/astro'
