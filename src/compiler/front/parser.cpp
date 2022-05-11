@@ -379,7 +379,6 @@ std::vector<node_c *> parser_c::call_parameters() {
 
   // Could be empty
   if (current_td_pair().token == token_e::R_PAREN) {
-    advance();
     return {};
   }
 
