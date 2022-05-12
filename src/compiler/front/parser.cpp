@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "compiler/shared/page.hpp"
+#include "compiler/shared/reporter.hpp"
 #include "lexer.hpp"
 #include "tokens.hpp"
 #include <iostream>
@@ -154,6 +155,21 @@ const td_pair_t &parser_c::peek(const std::size_t ahead) const {
 }
 
 void parser_c::die(uint64_t error_no, std::string error) {
+
+
+  compiler::shared::marked_source_report_c msr(
+    compiler::shared::report_origin_e::PARSER,
+    compiler::shared::level_e::ERROR,
+    error,
+    _source_name,
+    current_td_pair().location,
+    errno
+  );
+
+  compiler::shared::reporter_c reporter(_pages);
+  reporter.marked_report(msr);
+
+/*
   //  Todo : Send this data to the reporter
   //
   std::cerr << "\nError: " << error_no << " | " << error << " .. "
@@ -162,6 +178,7 @@ void parser_c::die(uint64_t error_no, std::string error) {
 
   std::cerr << "Current token : " << token_to_str(current_td_pair())
             << std::endl;
+            */
   _parser_okay = false;
 }
 
@@ -981,7 +998,7 @@ node_c *parser_c::expression(precedence_e precedence) {
   auto fn = _prefix_fns[current_td_pair().token];
   auto left = (this->*fn)();
 
-  while (peek().token != token_e::SEMICOLON && precedence < peek_precedence()) {
+  while (_parser_okay && peek().token != token_e::SEMICOLON && precedence < peek_precedence()) {
     if (_infix_fns.find(peek().token) == _infix_fns.end()) {
       return left;
     }

@@ -40,27 +40,20 @@ public:
     std::size_t bottom{5};
   };
 
-  //! \brief Squiggle trail - How many '~' should appear before / after the
-  //!        reported token (max)
-  struct squiggle_trail_t {
-    std::size_t front{5};
-    std::size_t behind{5};
-  };
-
   //! \brief Constructor that sets all the data :)
   marked_source_report_c(const report_origin_e &origin, const level_e &level,
                          const std::string &report,
                          const std::string &source_file,
-                         const location_c &location)
+                         const location_c &location,
+                         const uint64_t &id)
       : base_report_c(origin, level, report), file(source_file),
-        location(location) {}
+        location(location), error_id(id) {}
 
   std::string file;
   shared::location_c location;
-  bool point_at_issue{true};
+  uint64_t error_id{0};
 
   window_t window;
-  squiggle_trail_t squiggle_trail;
 };
 
 //! \brief Actual reporting object
