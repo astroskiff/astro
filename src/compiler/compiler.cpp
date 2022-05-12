@@ -2,8 +2,6 @@
 #include "front/parser.hpp"
 #include <filesystem>
 #include <iostream>
-
-#include "shared/expression_eval.hpp"
 #include "shared/types.hpp"
 
 namespace compiler {
@@ -18,10 +16,6 @@ compile_project(const targets_e target,
     return {};
   }
 
-  std::vector<front::td_pair_t> tokens;
-
-  //  Create the parser with cdt.
-  //
   front::parser_c parser;
   std::vector<node_c *> instruction = parser.parse_file(file);
 
@@ -34,16 +28,17 @@ compile_project(const targets_e target,
     std::cout << "Got " << instruction.size() << " items\n";
     for (auto i : instruction) {
       display_expr_tree("", i);
-      if (i->type == compiler::node_type_e::REASSIGN) {
-        auto results = shared::evaluate_expression(i->right);
-        for (auto r : results.execution_order) {
-          std::cout << r->data << " ";
-        }
-        std::cout << std::endl;
-      }
     }
     exit(EXIT_SUCCESS);
   }
+
+  //  Analyse the trees and ensure everything is valid
+  //
+
+  // Create the scope thing and type db etc etc
+
+  // Call the analyzer and if everything is fine continue
+
 
   return {};
 }

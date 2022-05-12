@@ -12,7 +12,9 @@ namespace compiler {
 class node_c;
 class location_c;
 
-namespace shared {
+namespace middle {
+
+namespace analysis {
 
 struct eval_error_t {
   std::string error;
@@ -21,15 +23,16 @@ struct eval_error_t {
 
 struct eval_results_t {
   bool is_valid{false};
-  base_type_e resulting_type;      // Base type enum representation
-  std::string resulting_type_name; // In case its user defined
+  compiler::shared::base_type_e resulting_type; // Base type enum representation
+  std::string resulting_type_name;              // In case its user defined
   std::vector<compiler::node_c *> execution_order; // Pointers into tree data
   std::vector<eval_error_t> errors;
 };
 
 extern eval_results_t evaluate_expression(compiler::node_c *expression);
 
-} // namespace shared
+} // namespace analysis
+} // namespace middle
 } // namespace compiler
 
 #endif

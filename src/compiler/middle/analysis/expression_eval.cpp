@@ -5,10 +5,11 @@
 #include <iostream>
 
 namespace compiler {
-namespace shared {
+namespace middle {
+namespace analysis {
 
 void walk_expression(compiler::node_c *node,
-                     std::vector<node_c *> &execution_order, base_type_e &type,
+                     std::vector<node_c *> &execution_order, compiler::shared::base_type_e &type,
                      std::vector<eval_error_t> &errors) {
   if (!node) {
     return;
@@ -20,21 +21,21 @@ void walk_expression(compiler::node_c *node,
   //
   case compiler::node_type_e::INTEGER: {
     switch (type) {
-    case base_type_e::OBJECT: {
+    case compiler::shared::base_type_e::OBJECT: {
       errors.push_back({"User objects are not yet supported", &node->location});
       return;
     }
-    case base_type_e::INT:
-      type = base_type_e::INT;
+    case compiler::shared::base_type_e::INT:
+      type = compiler::shared::base_type_e::INT;
       break;
-    case base_type_e::BOOL:
-      type = base_type_e::INT;
+    case compiler::shared::base_type_e::BOOL:
+      type = compiler::shared::base_type_e::INT;
       break;
-    case base_type_e::DOUBLE:
-      type = base_type_e::DOUBLE;
+    case compiler::shared::base_type_e::DOUBLE:
+      type = compiler::shared::base_type_e::DOUBLE;
       break;
-    case base_type_e::STRING:
-      type = base_type_e::STRING;
+    case compiler::shared::base_type_e::STRING:
+      type = compiler::shared::base_type_e::STRING;
       break;
     }
     execution_order.push_back(node);
@@ -45,17 +46,17 @@ void walk_expression(compiler::node_c *node,
   //
   case compiler::node_type_e::FLOAT: {
     switch (type) {
-    case base_type_e::OBJECT: {
+    case compiler::shared::base_type_e::OBJECT: {
       errors.push_back({"User objects are not yet supported", &node->location});
       return;
     }
-    case base_type_e::INT:
-    case base_type_e::BOOL:
-    case base_type_e::DOUBLE:
-      type = base_type_e::DOUBLE;
+    case compiler::shared::base_type_e::INT:
+    case compiler::shared::base_type_e::BOOL:
+    case compiler::shared::base_type_e::DOUBLE:
+      type = compiler::shared::base_type_e::DOUBLE;
       break;
-    case base_type_e::STRING:
-      type = base_type_e::STRING;
+    case compiler::shared::base_type_e::STRING:
+      type = compiler::shared::base_type_e::STRING;
       break;
     }
     execution_order.push_back(node);
@@ -65,12 +66,12 @@ void walk_expression(compiler::node_c *node,
   //  String Node
   //
   case compiler::node_type_e::STRING: {
-    if (base_type_e::OBJECT == type) {
+    if (compiler::shared::base_type_e::OBJECT == type) {
       errors.push_back({"User objects are not yet supported", &node->location});
       return;
     }
 
-    type = base_type_e::STRING; // Everything gets promoted to string
+    type = compiler::shared::base_type_e::STRING; // Everything gets promoted to string
     execution_order.push_back(node);
     break;
   }
@@ -111,7 +112,7 @@ void walk_expression(compiler::node_c *node,
   case compiler::node_type_e::BW_AND:
   case compiler::node_type_e::BW_OR:
   case compiler::node_type_e::BW_XOR: {
-    if (type == base_type_e::STRING) {
+    if (type == compiler::shared::base_type_e::STRING) {
       errors.push_back({"Invalid operation on string type", &node->location});
     }
     walk_expression(node->left, execution_order, type, errors);
@@ -142,19 +143,19 @@ eval_results_t evaluate_expression(compiler::node_c *expression) {
                   results.errors);
 
   switch (results.resulting_type) {
-  case base_type_e::BOOL:
+  case compiler::shared::base_type_e::BOOL:
     results.resulting_type_name = "bool";
     break;
-  case base_type_e::INT:
+  case compiler::shared::base_type_e::INT:
     results.resulting_type_name = "int";
     break;
-  case base_type_e::DOUBLE:
+  case compiler::shared::base_type_e::DOUBLE:
     results.resulting_type_name = "double";
     break;
-  case base_type_e::STRING:
+  case compiler::shared::base_type_e::STRING:
     results.resulting_type_name = "string";
     break;
-  case base_type_e::OBJECT:
+  case compiler::shared::base_type_e::OBJECT:
     // Will need to have a storage of user defined objects in the symbol table
     // that can point us to the actual name of the thing
     results.errors.push_back(
@@ -165,6 +166,8 @@ eval_results_t evaluate_expression(compiler::node_c *expression) {
 
   return results;
 }
+
+} // namespace analysis
 
 } // namespace shared
 
