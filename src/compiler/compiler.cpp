@@ -1,8 +1,8 @@
 #include "compiler.hpp"
 #include "front/parser.hpp"
+#include "shared/types.hpp"
 #include <filesystem>
 #include <iostream>
-#include "shared/types.hpp"
 
 namespace compiler {
 
@@ -38,7 +38,6 @@ compile_project(const targets_e target,
   // Create the scope thing and type db etc etc
 
   // Call the analyzer and if everything is fine continue
-
 
   return {};
 }

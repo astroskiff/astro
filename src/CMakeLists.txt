@@ -46,6 +46,7 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/lexer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/front/tokens.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/scoped_symbol_table.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/semantic_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/expression_eval.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/generation/ir_generator.cpp
@@ -54,7 +55,6 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/shared/reporter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/shared/types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/ast.cpp
 )
 

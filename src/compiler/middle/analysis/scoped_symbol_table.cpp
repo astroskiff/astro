@@ -3,68 +3,53 @@
 namespace compiler {
 namespace middle {
 namespace analysis {
+scope_c::scope_c(scope_c *parent) : _parent(parent) {}
 
-scope_c::scope_c(scope_c * parent) : parent(parent) {}
-
-scope_c::~scope_c() 
-{
-  for(auto i = functions.begin(); i != functions.end(); ++i) {
-    delete (*i).second;
-  }
-  for(auto i = members.begin(); i != members.end(); ++i) {
+scope_c::~scope_c() {
+  for (auto i = _table.begin(); i != _table.end(); ++i) {
     delete (*i).second;
   }
 }
 
-function_c * scope_c::find_function(const std::string &name)
-{
-  if(functions.find(name) == functions.end()) {
-    if(parent) {
-      return parent->find(name);
+entry_c *scope_c::find(const std::string &name) {
+  if (_table.find(name) == _table.end()) {
+    if (_parent) {
+      return _parent->find(name);
     }
   } else {
-    return functions[name];
+    return _table[name];
   }
   return nullptr;
 }
 
-type_c * scope_c::find_member(const std::string &name)
-{
-  if(members.find(name) == members.end()) {
-    if(parent) {
-      return parent->find(name);
-    }
-  } else {
-    return members[name];
+void scope_c::add(const std::string &name, entry_c *entry) {
+  if (_table.find(name) != _table.end()) {
+    delete _table[name];
   }
-  return nullptr;
+  _table[name] = entry;
 }
 
-scoped_symbol_table_c::scoped_symbol_table_c()
-{
+scoped_symbol_table_c::scoped_symbol_table_c() {
   // Add one for a global scope
   new_scope();
 }
 
-scoped_symbol_table_c::~scoped_symbol_table_c()
-{
-  while(!_scopes.empty()) {
+scoped_symbol_table_c::~scoped_symbol_table_c() {
+  while (!_scopes.empty()) {
     delete _scopes.top();
     _scopes.pop();
   }
 }
 
-scope_c * scoped_symbol_table_c::get_current_scope()
-{
-  if(_scopes.empty()) {
+scope_c *scoped_symbol_table_c::get_current_scope() {
+  if (_scopes.empty()) {
     return nullptr;
   }
   return _scopes.top();
 }
 
-void scoped_symbol_table_c::new_scope() 
-{
-  scope_c * parent = nullptr;
+void scoped_symbol_table_c::new_scope() {
+  scope_c *parent = nullptr;
   if (!_scopes.empty()) {
     parent = _scopes.top();
   }
@@ -72,9 +57,8 @@ void scoped_symbol_table_c::new_scope()
   _scopes.push(new scope_c(parent));
 }
 
-void scoped_symbol_table_c::pop_scope() 
-{
-  if(_scopes.empty()) {
+void scoped_symbol_table_c::pop_scope() {
+  if (_scopes.empty()) {
     return;
   }
   delete _scopes.top();

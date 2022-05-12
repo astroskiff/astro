@@ -9,7 +9,8 @@ namespace middle {
 namespace analysis {
 
 void walk_expression(compiler::node_c *node,
-                     std::vector<node_c *> &execution_order, compiler::shared::base_type_e &type,
+                     std::vector<node_c *> &execution_order,
+                     compiler::shared::base_type_e &type,
                      std::vector<eval_error_t> &errors) {
   if (!node) {
     return;
@@ -71,7 +72,8 @@ void walk_expression(compiler::node_c *node,
       return;
     }
 
-    type = compiler::shared::base_type_e::STRING; // Everything gets promoted to string
+    type = compiler::shared::base_type_e::STRING; // Everything gets promoted to
+                                                  // string
     execution_order.push_back(node);
     break;
   }
@@ -169,6 +171,6 @@ eval_results_t evaluate_expression(compiler::node_c *expression) {
 
 } // namespace analysis
 
-} // namespace shared
+} // namespace middle
 
 } // namespace compiler
