@@ -1014,8 +1014,12 @@ node_c *parser_c::expression(precedence_e precedence) {
   auto fn = _prefix_fns[current_td_pair().token];
   auto left = (this->*fn)();
 
+<<<<<<< HEAD
   while (_parser_okay && peek().token != token_e::SEMICOLON &&
          precedence < peek_precedence()) {
+=======
+  while (_parser_okay && peek().token != token_e::SEMICOLON && precedence < peek_precedence()) {
+>>>>>>> b698846 (reporting errors)
     if (_infix_fns.find(peek().token) == _infix_fns.end()) {
       return left;
     }
