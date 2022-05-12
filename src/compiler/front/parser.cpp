@@ -1015,11 +1015,16 @@ node_c *parser_c::expression(precedence_e precedence) {
   auto left = (this->*fn)();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   while (_parser_okay && peek().token != token_e::SEMICOLON &&
          precedence < peek_precedence()) {
 =======
   while (_parser_okay && peek().token != token_e::SEMICOLON && precedence < peek_precedence()) {
 >>>>>>> b698846 (reporting errors)
+=======
+  while (_parser_okay && peek().token != token_e::SEMICOLON &&
+         precedence < peek_precedence()) {
+>>>>>>> 7d0b294 (Errors)
     if (_infix_fns.find(peek().token) == _infix_fns.end()) {
       return left;
     }
