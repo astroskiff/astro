@@ -14,7 +14,7 @@ enum class targets_e {
 
 //! \brief Some options to feed into the compiler
 struct options_t {
-  bool parse_only {false};  // For testing purposes
+  bool parse_only{false}; // For testing purposes
 };
 
 //! \brief Compile an Astro project

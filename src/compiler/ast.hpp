@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "shared/common.hpp"
+
 namespace compiler {
 
 // Forward to externed function can be at top for visibility
@@ -57,32 +59,25 @@ enum class node_type_e {
   CONDITIONAL
 };
 
-class location_c {
-public:
-  location_c() : line(0), col(0) {}
-  location_c(std::size_t line, std::size_t col) : line(line), col(col) {}
-  std::size_t line{0};
-  std::size_t col{0};
-};
-
 class node_c {
 public:
-  node_c(const node_type_e type, const location_c loc)
+  node_c(const node_type_e type, const shared::location_c loc)
       : type(type), location(loc) {}
-  node_c(const node_type_e type, const location_c loc, const std::string &data)
+  node_c(const node_type_e type, const shared::location_c loc,
+         const std::string &data)
       : type(type), data(data), location(loc) {}
   node_c *left{nullptr};
   node_c *right{nullptr};
   std::string data;
   node_type_e type;
-  location_c location;
+  shared::location_c location;
 };
 
 class variable_c : public node_c {
 public:
-  variable_c(const location_c &loc, const std::string data)
+  variable_c(const shared::location_c &loc, const std::string data)
       : node_c(node_type_e::VARIABLE, loc, data) {}
-  variable_c(const location_c &loc, const std::string data,
+  variable_c(const shared::location_c &loc, const std::string data,
              const std::string type)
       : node_c(node_type_e::VARIABLE, loc, data), type_name(type) {}
 
@@ -91,7 +86,7 @@ public:
 
 class for_loop_c : public node_c {
 public:
-  for_loop_c(const location_c &loc) : node_c(node_type_e::FOR, loc) {}
+  for_loop_c(const shared::location_c &loc) : node_c(node_type_e::FOR, loc) {}
 
   node_c *from{nullptr};
   node_c *to{nullptr};
@@ -101,12 +96,12 @@ public:
 
 class bodied_node_c : public node_c {
 public:
-  bodied_node_c(const node_type_e type, const location_c &loc)
+  bodied_node_c(const node_type_e type, const shared::location_c &loc)
       : node_c(type, loc) {}
-  bodied_node_c(const node_type_e type, const location_c &loc,
+  bodied_node_c(const node_type_e type, const shared::location_c &loc,
                 const std::string name, const std::vector<node_c *> &body)
       : node_c(type, loc, name), body(body) {}
-  bodied_node_c(const node_type_e type, const location_c &loc,
+  bodied_node_c(const node_type_e type, const shared::location_c &loc,
                 const std::vector<node_c *> &body)
       : node_c(type, loc), body(body) {}
   std::vector<node_c *> body;
@@ -114,16 +109,16 @@ public:
 
 class function_node_c : public node_c {
 public:
-  function_node_c(const location_c &loc, const std::string name,
+  function_node_c(const shared::location_c &loc, const std::string name,
                   const std::vector<node_c *> &body,
                   const std::vector<node_c *> &params,
                   const std::string return_type_name,
-                  const location_c &return_type_loc)
+                  const shared::location_c &return_type_loc)
       : node_c(node_type_e::FN, loc, name), body(body), params(params),
         return_type(return_type_name), return_type_loc(return_type_loc) {}
 
   std::string return_type;
-  location_c return_type_loc;
+  shared::location_c return_type_loc;
   std::vector<node_c *> params;
   std::vector<node_c *> body;
 };

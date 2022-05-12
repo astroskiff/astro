@@ -7,7 +7,8 @@ namespace compiler {
 namespace front {
 
 std::string token_to_str(const td_pair_t &td) {
-  auto show = [](const std::string &data, const location_c loc) -> std::string {
+  auto show = [](const std::string &data,
+                 const shared::location_c loc) -> std::string {
     return data + "[" + std::to_string(loc.line) + ", " +
            std::to_string(loc.col) + "]";
   };

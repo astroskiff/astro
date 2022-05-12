@@ -4,15 +4,17 @@
 #include <iostream>
 
 namespace compiler {
-namespace front {
+namespace shared {
 
 bool page_c::load_page(const std::string &file) {
-  if (!std::filesystem::is_regular_file(file)) {
+
+  _file = file;
+  if (!std::filesystem::is_regular_file(_file)) {
     return false;
   }
 
   std::fstream inf;
-  inf.open(file, std::fstream::in);
+  inf.open(_file, std::fstream::in);
   if (!inf.is_open()) {
     return false;
   }
@@ -31,5 +33,5 @@ std::tuple<bool, std::string> page_c::get_line(std::size_t line) {
   return {true, _data.at(line)};
 }
 
-} // namespace front
+} // namespace shared
 } // namespace compiler

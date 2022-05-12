@@ -15,7 +15,7 @@
 #include <vector>
 
 namespace compiler {
-namespace front {
+namespace shared {
 
 //! \brief A 'page' of source code
 class page_c {
@@ -38,12 +38,15 @@ public:
   //!          was valid and represented a line of data
   std::tuple<bool, std::string> get_line(std::size_t line);
 
+  //! \brief Get the name of the file loaded in
+  std::string get_file() const { return _file; }
+
 private:
-  std::string file;
+  std::string _file;
   std::vector<std::string> _data;
 };
 
-} // namespace front
+} // namespace shared
 } // namespace compiler
 
 #endif
