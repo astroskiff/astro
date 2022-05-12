@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "compiler/errors.hpp"
 #include "compiler/shared/page.hpp"
 #include "compiler/shared/reporter.hpp"
 #include "lexer.hpp"
@@ -154,39 +155,31 @@ const td_pair_t &parser_c::peek(const std::size_t ahead) const {
   return _tokens.at(_idx + ahead);
 }
 
-void parser_c::die(uint64_t error_no, std::string error) {
-
-
-  compiler::shared::marked_source_report_c msr(
-    compiler::shared::report_origin_e::PARSER,
-    compiler::shared::level_e::ERROR,
-    error,
-    _source_name,
-    current_td_pair().location,
-    errno
-  );
+void parser_c::die(uint64_t error_no, std::string error, bool basic_error) {
 
   compiler::shared::reporter_c reporter(_pages);
-  reporter.marked_report(msr);
-
-/*
-  //  Todo : Send this data to the reporter
-  //
-  std::cerr << "\nError: " << error_no << " | " << error << " .. "
-            << current_td_pair().location.line << ", "
-            << current_td_pair().location.col << std::endl;
-
-  std::cerr << "Current token : " << token_to_str(current_td_pair())
-            << std::endl;
-            */
-  _parser_okay = false;
-}
-
-void parser_c::expect(const token_e token, const std::string &error,
-                      const size_t ahead) {
-  if (peek(ahead).token != token) {
-    die(0, error); // Todo: Update this error code to "unexpected token" code
+  if (basic_error) {
+    reporter.standard_report(compiler::shared::base_report_c(
+        compiler::shared::report_origin_e::PARSER,
+        compiler::shared::level_e::ERROR, error));
+  } else {
+    reporter.marked_report(compiler::shared::marked_source_report_c(
+        compiler::shared::report_origin_e::PARSER,
+        compiler::shared::level_e::ERROR, error, _source_name,
+        current_td_pair().location, error_no));
   }
+
+  /*
+    //  Todo : Send this data to the reporter
+    //
+    std::cerr << "\nError: " << error_no << " | " << error << " .. "
+              << current_td_pair().location.line << ", "
+              << current_td_pair().location.col << std::endl;
+
+    std::cerr << "Current token : " << token_to_str(current_td_pair())
+              << std::endl;
+              */
+  _parser_okay = false;
 }
 
 std::vector<node_c *> parser_c::parse_file(const std::string &file) {
@@ -210,7 +203,8 @@ std::vector<node_c *> parser_c::parse_file(const std::string &file) {
 
     auto item = function();
     if (!item) {
-      die(0, "Failed to build function");
+      die(compiler::errors::parser::ERROR_FAILED_TO_BUILD_FUNCTION,
+          "Failed to build function", true);
       return {};
     }
 
@@ -240,7 +234,7 @@ node_c *parser_c::let_statement() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected ID");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ID");
     return nullptr;
   }
   auto id = current_td_pair().data;
@@ -253,7 +247,8 @@ node_c *parser_c::let_statement() {
   if (current_td_pair().token == token_e::COLON) {
     advance();
     if (current_td_pair().token != token_e::ID) {
-      die(0, "Expected type name");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+          "Expected type name");
       return nullptr;
     }
     variable_type_name = current_td_pair().data;
@@ -261,7 +256,8 @@ node_c *parser_c::let_statement() {
   }
 
   if (current_td_pair().token != token_e::EQ) {
-    die(0, "Expected '=' for assignment'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Expected '=' for assignment'");
     return nullptr;
   }
 
@@ -269,13 +265,15 @@ node_c *parser_c::let_statement() {
 
   auto exp = expression(precedence_e::LOWEST);
   if (!exp) {
-    die(0, "Invalid expression");
+    die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+        "Invalid expression");
     return nullptr;
   }
   advance();
 
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Missing ';' at end of 'let' statement");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Missing ';' at end of 'let' statement");
     return nullptr;
   }
   advance();
@@ -301,7 +299,7 @@ node_c *parser_c::label_statement() {
 std::vector<node_c *> parser_c::function_parameters() {
 
   if (current_td_pair().token != token_e::L_PAREN) {
-    die(0, "Expected '('");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '('");
     return {};
   }
 
@@ -317,7 +315,8 @@ std::vector<node_c *> parser_c::function_parameters() {
   std::vector<node_c *> results;
   while (_parser_okay) {
     if (current_td_pair().token != token_e::ID) {
-      die(0, "Expected parameter identifier");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+          "Expected parameter identifier");
       break;
     }
     auto param_name = current_td_pair().data;
@@ -325,13 +324,14 @@ std::vector<node_c *> parser_c::function_parameters() {
     advance();
 
     if (current_td_pair().token != token_e::COLON) {
-      die(0, "Expected ':'");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ':'");
       break;
     }
     advance();
 
     if (current_td_pair().token != token_e::ID) {
-      die(0, "Expected parameter type identifier");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+          "Expected parameter type identifier");
       break;
     }
     auto type_name = current_td_pair().data;
@@ -346,7 +346,7 @@ std::vector<node_c *> parser_c::function_parameters() {
 
     // If its a comma we get to go around again
     if (current_td_pair().token != token_e::COMMA) {
-      die(0, "Expected ','");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ','");
       break;
     }
     advance();
@@ -357,7 +357,7 @@ std::vector<node_c *> parser_c::function_parameters() {
 
 std::vector<node_c *> parser_c::statement_block() {
   if (current_td_pair().token != token_e::L_BRACE) {
-    die(0, "Expected '{'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '{'");
     return {};
   }
   advance();
@@ -383,7 +383,7 @@ std::vector<node_c *> parser_c::statement_block() {
   }
 
   if (current_td_pair().token != token_e::R_BRACE) {
-    die(0, "Expected '}'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '}'");
     return {};
   }
   advance();
@@ -394,7 +394,7 @@ std::vector<node_c *> parser_c::statement_block() {
 std::vector<node_c *> parser_c::call_parameters() {
 
   if (current_td_pair().token != token_e::L_PAREN) {
-    die(0, "CALL Expected '('");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '('");
     return {};
   }
 
@@ -411,7 +411,8 @@ std::vector<node_c *> parser_c::call_parameters() {
 
     auto expr = expression(precedence_e::LOWEST);
     if (!expr) {
-      die(0, "Malformed expression ");
+      die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+          "Malformed expression ");
       return {};
     }
 
@@ -425,7 +426,7 @@ std::vector<node_c *> parser_c::call_parameters() {
 
     // If its a comma we get to go around again
     if (current_td_pair().token != token_e::COMMA) {
-      die(0, "Expected ','");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ','");
       break;
     }
     advance();
@@ -442,7 +443,7 @@ node_c *parser_c::for_statement() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected ID");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ID");
     return nullptr;
   }
   auto id_location = current_td_pair().location;
@@ -451,7 +452,8 @@ node_c *parser_c::for_statement() {
   advance();
 
   if (current_td_pair().token != token_e::EQ) {
-    die(0, "Expected ID assignment ");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Expected ID assignment ");
     return nullptr;
   }
 
@@ -459,14 +461,15 @@ node_c *parser_c::for_statement() {
 
   auto from_expr = expression(precedence_e::LOWEST);
   if (!from_expr) {
-    die(0, "Malformed expression ");
+    die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+        "Malformed expression ");
     return nullptr;
   }
 
   advance();
 
   if (current_td_pair().token != token_e::TO) {
-    die(0, "Expected TO");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected TO");
     return nullptr;
   }
 
@@ -474,7 +477,8 @@ node_c *parser_c::for_statement() {
 
   auto to_expr = expression(precedence_e::LOWEST);
   if (!to_expr) {
-    die(0, "Malformed expression ");
+    die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+        "Malformed expression ");
     return nullptr;
   }
 
@@ -486,7 +490,8 @@ node_c *parser_c::for_statement() {
   if (current_td_pair().token == token_e::STEP) {
     advance();
     if (current_td_pair().token != token_e::INTEGER) {
-      die(0, "Expected integer for step (convert to expression later)");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+          "Expected integer for step (convert to expression later)");
       return nullptr;
     }
     step_variable = new node_c(node_type_e::INTEGER, current_td_pair().location,
@@ -521,7 +526,7 @@ node_c *parser_c::goto_statement() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected label ID");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected label ID");
     return nullptr;
   }
   auto id_location = current_td_pair().location;
@@ -530,7 +535,7 @@ node_c *parser_c::goto_statement() {
   advance();
 
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Expected ;");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ;");
     return nullptr;
   }
 
@@ -552,7 +557,7 @@ node_c *parser_c::gosub_statement() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected label ID");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected label ID");
     return nullptr;
   }
   auto id_location = current_td_pair().location;
@@ -561,7 +566,7 @@ node_c *parser_c::gosub_statement() {
   advance();
 
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Expected ;");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ;");
     return nullptr;
   }
 
@@ -583,7 +588,7 @@ node_c *parser_c::asm_statement() {
   advance();
 
   if (current_td_pair().token != token_e::L_BRACE) {
-    die(0, "Expected '{'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '{'");
     return {};
   }
 
@@ -597,7 +602,8 @@ node_c *parser_c::asm_statement() {
     }
 
     if (current_td_pair().token != token_e::STRING) {
-      die(0, "Expected string in ASM block");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+          "Expected string in ASM block");
       return nullptr;
     }
 
@@ -610,7 +616,7 @@ node_c *parser_c::asm_statement() {
   }
 
   if (current_td_pair().token != token_e::R_BRACE) {
-    die(0, "Expected '}'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected '}'");
     return {};
   }
   advance();
@@ -629,7 +635,8 @@ node_c *parser_c::function() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected function name");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Expected function name");
     return nullptr;
   }
 
@@ -647,7 +654,8 @@ node_c *parser_c::function() {
   }
 
   if (current_td_pair().token != token_e::ARROW) {
-    die(0, "Expected '->' to indicate return type");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Expected '->' to indicate return type");
     for (auto i : params) {
       free_nodes(i);
     }
@@ -656,7 +664,8 @@ node_c *parser_c::function() {
   advance();
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected '->' to indicate return type");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Expected '->' to indicate return type");
     for (auto i : params) {
       free_nodes(i);
     }
@@ -699,7 +708,7 @@ node_c *parser_c::call_statement() {
 
   advance();
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Expected ';'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ';'");
     for (auto item : params) {
       free_nodes(item);
     }
@@ -719,7 +728,8 @@ node_c *parser_c::if_statement() {
 
   auto first_condition = expression(precedence_e::LOWEST);
   if (!first_condition) {
-    die(0, "Malformed expression ");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+        "Malformed expression ");
     return nullptr;
   }
   advance();
@@ -754,7 +764,8 @@ node_c *parser_c::elif_statement() {
 
   auto first_condition = expression(precedence_e::LOWEST);
   if (!first_condition) {
-    die(0, "Malformed expression ");
+    die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+        "Malformed expression ");
     return nullptr;
   }
   advance();
@@ -805,13 +816,14 @@ node_c *parser_c::return_statement() {
 
     return_expression = expression(precedence_e::LOWEST);
     if (!return_expression) {
-      die(0, "Invalid return expression");
+      die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+          "Invalid return expression");
       return nullptr;
     }
     advance();
 
     if (current_td_pair().token != token_e::SEMICOLON) {
-      die(0, "Expected ;");
+      die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ;");
       free_nodes(return_expression);
       return nullptr;
     }
@@ -838,13 +850,14 @@ node_c *parser_c::reassign_statement() {
 
   auto exp = expression(precedence_e::LOWEST);
   if (!exp) {
-    die(0, "Invalid expression");
+    die(compiler::errors::parser::ERROR_INVALID_EXPRESSION,
+        "Invalid expression");
     return nullptr;
   }
   advance();
 
   if (current_td_pair().token != token_e::SEMICOLON) {
-    die(0, "Missing ';'");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Missing ';'");
     return nullptr;
   }
   advance();
@@ -883,7 +896,8 @@ node_c *parser_c::prefix_expr() {
     node = new node_c(node_type_e::NOT, current_td_pair().location, "not");
     break;
   default:
-    die(0, "Invalid prefix token hit");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_PREFIX_TOKEN,
+        "Invalid prefix token hit");
     return nullptr;
   }
   advance();
@@ -956,7 +970,8 @@ node_c *parser_c::infix_expr(node_c *left) {
     node = new node_c(node_type_e::BW_XOR, current_td_pair().location, "xor");
     break;
   default:
-    die(0, "Invalid infix token hit");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_INFIX_TOKEN,
+        "Invalid infix token hit");
     return nullptr;
   }
 
@@ -985,20 +1000,22 @@ node_c *parser_c::grouped_expr() {
 node_c *parser_c::constructor_list() {
 
   std::cerr << "Constructor list not yest supported" << std::endl;
-  die(0, "Not yet supported");
+  die(compiler::errors::parser::ERROR_NOT_YET_SUPPORTED, "Not yet supported");
   return nullptr;
 }
 
 node_c *parser_c::expression(precedence_e precedence) {
   if (_prefix_fns.find(current_td_pair().token) == _prefix_fns.end()) {
-    die(0, "no thing for prefix tok");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_PREFIX_TOKEN,
+        "No matching function for given prefix");
     return nullptr;
   }
 
   auto fn = _prefix_fns[current_td_pair().token];
   auto left = (this->*fn)();
 
-  while (_parser_okay && peek().token != token_e::SEMICOLON && precedence < peek_precedence()) {
+  while (_parser_okay && peek().token != token_e::SEMICOLON &&
+         precedence < peek_precedence()) {
     if (_infix_fns.find(peek().token) == _infix_fns.end()) {
       return left;
     }
@@ -1013,7 +1030,7 @@ node_c *parser_c::expression(precedence_e precedence) {
 node_c *parser_c::identifier() {
 
   if (current_td_pair().token != token_e::ID) {
-    die(0, "Expected ID");
+    die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected ID");
     return nullptr;
   }
 
@@ -1052,7 +1069,8 @@ node_c *parser_c::call() {
 }
 
 node_c *parser_c::array_index() {
-  die(0, "Indexing arrays within expressions not yet supported");
+  die(compiler::errors::parser::ERROR_NOT_YET_SUPPORTED,
+      "Indexing arrays within expressions not yet supported");
   return nullptr;
 }
 
@@ -1065,7 +1083,8 @@ node_c *parser_c::number() {
     return new node_c(node_type_e::FLOAT, current_td_pair().location,
                       current_td_pair().data);
   }
-  die(0, "Expected numerical value");
+  die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN,
+      "Expected numerical value");
   return nullptr;
 }
 
@@ -1074,7 +1093,7 @@ node_c *parser_c::str() {
     return new node_c(node_type_e::STRING, current_td_pair().location,
                       current_td_pair().data);
   }
-  die(0, "Expected string");
+  die(compiler::errors::parser::ERROR_UNEXPECTED_TOKEN, "Expected string");
   return nullptr;
 }
 

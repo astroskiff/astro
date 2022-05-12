@@ -53,11 +53,9 @@ private:
   void mark();
   void reset();
   void unset();
-  void expect(const token_e token, const std::string &error,
-              const size_t ahead = 0);
   const td_pair_t &current_td_pair() const;
   const td_pair_t &peek(const std::size_t ahead = 1) const;
-  void die(uint64_t error_no, std::string error);
+  void die(uint64_t error_no, std::string error, bool basic_error = false);
 
   std::vector<std::function<node_c *()>> _statement_functions;
 

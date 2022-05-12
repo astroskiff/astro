@@ -44,8 +44,7 @@ public:
   marked_source_report_c(const report_origin_e &origin, const level_e &level,
                          const std::string &report,
                          const std::string &source_file,
-                         const location_c &location,
-                         const uint64_t &id)
+                         const location_c &location, const uint64_t &id)
       : base_report_c(origin, level, report), file(source_file),
         location(location), error_id(id) {}
 
