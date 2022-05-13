@@ -20,12 +20,15 @@ void pop_c::visit(ir_translator_c &translator) { translator.accept(*this); }
 void add_c::visit(ir_translator_c &translator) { translator.accept(*this); }
 
 void sub_c::visit(ir_translator_c &translator) { translator.accept(*this); }
+
 void div_c::visit(ir_translator_c &translator) { translator.accept(*this); }
+
 void mul_c::visit(ir_translator_c &translator) { translator.accept(*this); }
 
 void mod_c::visit(ir_translator_c &translator) { translator.accept(*this); }
 
 void pow_c::visit(ir_translator_c &translator) { translator.accept(*this); }
+
 void lsh_c::visit(ir_translator_c &translator) { translator.accept(*this); }
 
 void rsh_c::visit(ir_translator_c &translator) { translator.accept(*this); }

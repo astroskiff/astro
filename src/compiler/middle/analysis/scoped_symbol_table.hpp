@@ -1,6 +1,8 @@
 #ifndef COMPILER_MIDDLE_ANALYSIS_SCOPED_SYMBOL_TABLE_HPP
 #define COMPILER_MIDDLE_ANALYSIS_SCOPED_SYMBOL_TABLE_HPP
 
+#include "types.hpp"
+
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -9,24 +11,6 @@
 namespace compiler {
 namespace middle {
 namespace analysis {
-
-//! \brief Base forward-facing types that can be declared
-enum class base_forward_types_e {
-  U8,
-  U16,
-  U32,
-  U64,
-  I8,
-  I16,
-  I32,
-  I64,
-  INT,
-  UINT,
-  DOUBLE,
-  BOOL,
-  STRING,
-  USER_DECL
-};
 
 //! \brief A single table entry
 class entry_c {

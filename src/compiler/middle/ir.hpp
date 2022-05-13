@@ -2,6 +2,7 @@
 #define COMPILER_MIDDLE_GENERATION_IR_HPP
 
 #include <string>
+#include <vector>
 
 namespace compiler {
 namespace middle {
@@ -19,10 +20,10 @@ public:
 
 class push_c : ir_instruction_c {
 public:
-  push_c(const uint64_t &value, const uint64_t &bytes)
+  push_c(const std::vector<uint8_t> &value, const uint64_t &bytes)
       : value(value), n_bytes(bytes) {}
   virtual void visit(ir_translator_c &translator) override;
-  uint64_t value{0};
+  std::vector<uint8_t> value;
   uint64_t n_bytes{0};
 };
 
@@ -59,11 +60,6 @@ public:
   call_c(const std::string &dest) : dest(dest) {}
   virtual void visit(ir_translator_c &translator) override;
   std::string dest;
-};
-
-class add_c : ir_instruction_c {
-public:
-  virtual void visit(ir_translator_c &translator) override;
 };
 
 class add_c : ir_instruction_c {
