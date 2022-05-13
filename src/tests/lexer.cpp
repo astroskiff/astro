@@ -30,7 +30,6 @@ TEST(lexer_tests, all) {
       {"elif", {compiler::front::token_e::ELIF}},
       {"let", {compiler::front::token_e::LET}},
       {"#", {compiler::front::token_e::OCTOTHORP}},
-      {"read", {compiler::front::token_e::READ}},
       {"return", {compiler::front::token_e::RETURN}},
       {"!", {compiler::front::token_e::NOT}},
       {"&&", {compiler::front::token_e::AND}},

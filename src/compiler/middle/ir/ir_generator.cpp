@@ -2,6 +2,6 @@
 
 namespace compiler {
 namespace middle {
-namespace generation {}
+namespace ir {} // namespace ir
 } // namespace middle
 } // namespace compiler

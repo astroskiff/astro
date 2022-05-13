@@ -49,7 +49,7 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/scoped_symbol_table.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/semantic_analysis.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/analysis/expression_eval.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/generation/ir_generator.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/ir/ir_generator.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/middle/middle.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/shared/page.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/shared/reporter.cpp

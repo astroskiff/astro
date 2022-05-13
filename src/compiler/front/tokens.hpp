@@ -24,7 +24,6 @@ enum class token_e {
   ELSE,
   LET,
   OCTOTHORP,
-  READ,
   RETURN,
   NOT,
   AND,
