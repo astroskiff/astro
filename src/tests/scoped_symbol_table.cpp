@@ -1,6 +1,7 @@
 
 
 #include "compiler/middle/analysis/scoped_symbol_table.hpp"
+#include "compiler/ast.hpp"
 
 #include <CppUTest/TestHarness.h>
 
@@ -29,8 +30,8 @@ TEST(scoped_symbol_table_tests, all) {
   {
     auto current_scope = table.get_current_scope();
     for (auto fn : function_names) {
-      current_scope->add(fn,
-                         new compiler::middle::analysis::function_c(fn, {}));
+      current_scope->add(fn, new compiler::middle::analysis::function_c(
+                                 fn, {}, compiler::data_type_e::INT));
     }
 
     for (auto fn : function_names) {
@@ -43,9 +44,8 @@ TEST(scoped_symbol_table_tests, all) {
     }
 
     for (auto vn : variable_names) {
-      current_scope->add(
-          vn, new compiler::middle::analysis::type_c(
-                  compiler::middle::analysis::base_forward_types_e::BOOL));
+      current_scope->add(vn, new compiler::middle::analysis::type_c(
+                                 compiler::data_type_e::INT));
     }
 
     for (auto fn : function_names) {
@@ -86,9 +86,8 @@ TEST(scoped_symbol_table_tests, all) {
     {
       auto current_scope = table.get_current_scope();
       for (auto vn : variable_names) {
-        current_scope->add(
-            vn, new compiler::middle::analysis::type_c(
-                    compiler::middle::analysis::base_forward_types_e::BOOL));
+        current_scope->add(vn, new compiler::middle::analysis::type_c(
+                                   compiler::data_type_e::INT));
       }
     }
     table.new_scope();

@@ -1,7 +1,7 @@
 #ifndef COMPILER_MIDDLE_ANALYSIS_SCOPED_SYMBOL_TABLE_HPP
 #define COMPILER_MIDDLE_ANALYSIS_SCOPED_SYMBOL_TABLE_HPP
 
-#include "types.hpp"
+#include "compiler/ast.hpp"
 
 #include <stack>
 #include <string>
@@ -30,9 +30,9 @@ public:
 //!        everything together
 class type_c : public entry_c {
 public:
-  type_c(const base_forward_types_e &type)
+  type_c(const compiler::data_type_e &type)
       : entry_c(entry_c::entry_type_e::MEMBER), type(type) {}
-  base_forward_types_e type;
+  compiler::data_type_e type;
   // user_decl_t *declaration;
 };
 
@@ -43,11 +43,13 @@ public:
     std::string name;
     type_c type;
   };
-  function_c(const std::string &name, const std::vector<param_t> &parameters)
+  function_c(const std::string &name, const std::vector<param_t> &parameters,
+             const compiler::data_type_e &type)
       : entry_c(entry_c::entry_type_e::FUNCTION), name(name),
-        parameters(parameters) {}
+        parameters(parameters), return_type(type) {}
   std::string name;
   std::vector<param_t> parameters;
+  compiler::data_type_e return_type;
 };
 
 //! \brief A single arbitrary scope and the things defined in it

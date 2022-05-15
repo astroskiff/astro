@@ -243,6 +243,7 @@ node_c *parser_c::let_statement() {
   advance();
 
   std::string variable_type_name{};
+  compiler::data_type_e data_type = compiler::data_type_e::UNKNOWN;
 
   if (current_td_pair().token == token_e::COLON) {
     advance();
@@ -252,6 +253,7 @@ node_c *parser_c::let_statement() {
       return nullptr;
     }
     variable_type_name = current_td_pair().data;
+    data_type = data_type_from_string(variable_type_name);
     advance();
   }
 
