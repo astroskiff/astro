@@ -39,16 +39,10 @@ void expression_evaluator_c::walk_expression(node_c *node) {
   case compiler::node_type_e::INTEGER:
   case compiler::node_type_e::FLOAT:
   case compiler::node_type_e::STRING:
+  case compiler::node_type_e::CALL:
   case compiler::node_type_e::VARIABLE: {
     check_promotion(node);
     _execution_order.push_back(node);
-    break;
-  }
-
-    // Function call
-    //
-
-  case compiler::node_type_e::CALL: {
     break;
   }
 
