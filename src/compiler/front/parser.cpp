@@ -576,7 +576,7 @@ node_c *parser_c::gosub_statement() {
   advance();
 
   auto label_node = new node_c(node_type_e::LABEL, id_location, id_value);
-  auto gosub_node = new node_c(node_type_e::GOTO, gosub_location, "gosub");
+  auto gosub_node = new node_c(node_type_e::GOSUB, gosub_location, "gosub");
   append_node(gosub_node, label_node);
 
   return gosub_node;

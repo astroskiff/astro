@@ -58,6 +58,7 @@ enum class node_type_e {
   LABEL,
   FOR,
   GOTO,
+  GOSUB,
   RETURN,
   NOT_EQ,
   CONDITIONAL
