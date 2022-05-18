@@ -70,7 +70,9 @@ std::unordered_map<token_e, parser_c::precedence_e> precedences = {
 
 } // namespace
 
-parser_c::parser_c() {
+parser_c::parser_c(std::unordered_map<std::string, shared::page_c> &pages) 
+  : _pages(pages)
+{
   _statement_functions = {
       std::bind(&parser_c::call_statement, this),
       std::bind(&parser_c::let_statement, this),

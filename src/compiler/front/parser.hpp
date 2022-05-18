@@ -30,7 +30,7 @@ public:
     INDEX         // []
   };
 
-  parser_c();
+  parser_c(std::unordered_map<std::string, shared::page_c> &pages);
   std::vector<node_c *> parse_file(const std::string &file);
 
   bool is_okay() const { return _parser_okay; }
@@ -46,7 +46,7 @@ private:
   bool _parsing_module{false};
   std::vector<td_pair_t> _tokens;
   std::string _source_name;
-  std::unordered_map<std::string, shared::page_c> _pages;
+  std::unordered_map<std::string, shared::page_c> &_pages;
 
   void prev();
   void advance();
