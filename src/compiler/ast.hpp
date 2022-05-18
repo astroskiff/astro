@@ -18,6 +18,10 @@ extern void append_node(node_c *to, node_c *from);
 
 extern void free_nodes(node_c *node);
 
+enum class data_type_e { UNKNOWN = 0, INT, FLOAT, STRING, USER_DECL };
+
+extern data_type_e data_type_from_string(const std::string &data);
+
 enum class node_type_e {
   FN,
   CALL,
@@ -82,6 +86,7 @@ public:
       : node_c(node_type_e::VARIABLE, loc, data), type_name(type) {}
 
   std::string type_name;
+  data_type_e type;
 };
 
 class for_loop_c : public node_c {

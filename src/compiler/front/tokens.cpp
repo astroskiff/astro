@@ -39,8 +39,6 @@ std::string token_to_str(const td_pair_t &td) {
     return show("LET", td.location);
   case token_e::OCTOTHORP:
     return show("OCTOTHORP", td.location);
-  case token_e::READ:
-    return show("READ", td.location);
   case token_e::RETURN:
     return show("RETURN", td.location);
   case token_e::NOT:

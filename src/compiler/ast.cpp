@@ -130,4 +130,22 @@ void free_nodes(node_c *node) {
   delete node;
 }
 
+data_type_e data_type_from_string(const std::string &data) {
+  if (data == "int") {
+    return data_type_e::INT;
+  }
+  if (data == "float") {
+    return data_type_e::FLOAT;
+  }
+  if (data == "str") {
+    return data_type_e::STRING;
+  }
+
+  //  Assume anyhthing beyond the base types is some user
+  //  declared type. UNKNOWN is meant for variables
+  //  that didn't have the optional type given
+  //
+  return data_type_e::USER_DECL;
+}
+
 } // namespace compiler
