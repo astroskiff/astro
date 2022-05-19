@@ -1,4 +1,5 @@
 #include "semantic_analysis.hpp"
+#include "compiler/shared/reporter.hpp"
 
 #include <iostream>
 
@@ -19,16 +20,20 @@ semantic_analysis_c::analyze(const std::vector<node_c *> &instructions) {
   return {false, {}};
 }
 
-void semantic_analysis_c::die(uint64_t error_no, std::string error, bool basic_error)
+void semantic_analysis_c::die(node_c *node, uint64_t error_no, std::string error, bool basic_error)
 {
   _sa_okay = false;
-  // TODO: 
-  //  Need to tie nodes to pages somehow. Perhaps we can embed that into location_c,
-  //  but by the time that the nodes get to the SA we've lost which file they are 
-  //  created from. 
-  //
-  //  Pipe to error reporter
-  //
+  compiler::shared::reporter_c reporter(_pages);
+  if (!node || basic_error) {
+    reporter.standard_report(compiler::shared::base_report_c(
+        compiler::shared::report_origin_e::PARSER,
+        compiler::shared::level_e::ERROR, error));
+  } else {
+    reporter.marked_report(compiler::shared::marked_source_report_c(
+        compiler::shared::report_origin_e::PARSER,
+        compiler::shared::level_e::ERROR, error,
+        node->location, error_no));
+  }
 }
 
 void semantic_analysis_c::analyze_node(node_c *node)

@@ -41,7 +41,7 @@ void lexer_c::clear() {
   _idx = 0;
 }
 
-std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
+std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line, std::string origin) {
   _current_line = line;
 
   for (_idx = 0; _idx < _current_line.size(); advance()) {
@@ -54,126 +54,126 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
         advance();
       }
       label += _current_line[_idx];
-      _tokens.emplace_back(td_pair_t{token_e::LABEL, label, {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::LABEL, label, {line_no, _idx, origin}});
       break;
     }
 
     case ';':
-      _tokens.emplace_back(td_pair_t{token_e::SEMICOLON, ";", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::SEMICOLON, ";", {line_no, _idx, origin}});
       break;
 
     case ':':
-      _tokens.emplace_back(td_pair_t{token_e::COLON, ":", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::COLON, ":", {line_no, _idx, origin}});
       break;
 
     case '(':
-      _tokens.emplace_back(td_pair_t{token_e::L_PAREN, "(", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::L_PAREN, "(", {line_no, _idx, origin}});
       break;
 
     case ')':
-      _tokens.emplace_back(td_pair_t{token_e::R_PAREN, ")", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::R_PAREN, ")", {line_no, _idx, origin}});
       break;
 
     case ',':
-      _tokens.emplace_back(td_pair_t{token_e::COMMA, ",", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::COMMA, ",", {line_no, _idx, origin}});
       break;
 
     case '#':
-      _tokens.emplace_back(td_pair_t{token_e::OCTOTHORP, "#", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::OCTOTHORP, "#", {line_no, _idx, origin}});
       break;
 
     case '{':
-      _tokens.emplace_back(td_pair_t{token_e::L_BRACE, "{", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::L_BRACE, "{", {line_no, _idx, origin}});
       break;
 
     case '}':
-      _tokens.emplace_back(td_pair_t{token_e::R_BRACE, "}", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::R_BRACE, "}", {line_no, _idx, origin}});
       break;
 
     case '[':
-      _tokens.emplace_back(td_pair_t{token_e::L_BRACKET, "[", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::L_BRACKET, "[", {line_no, _idx, origin}});
       break;
 
     case ']':
-      _tokens.emplace_back(td_pair_t{token_e::R_BRACKET, "]", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::R_BRACKET, "]", {line_no, _idx, origin}});
       break;
 
     case '%':
-      _tokens.emplace_back(td_pair_t{token_e::MOD, "%", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::MOD, "%", {line_no, _idx, origin}});
       break;
 
     case '>':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::GTE, ">=", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::GTE, ">=", {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::GT, ">", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::GT, ">", {line_no, _idx, origin}});
       }
       break;
 
     case '<':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::LTE, "<=", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::LTE, "<=", {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::LT, "<", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::LT, "<", {line_no, _idx, origin}});
       }
       break;
 
     case '!':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::NOT_EQ, "!=", {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::NOT, "!", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::NOT, "!", {line_no, _idx, origin}});
       }
       break;
 
     case '&':
       if (peek() == '&') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::AND, "&&", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::AND, "&&", {line_no, _idx, origin}});
       }
       break;
 
     case '|':
       if (peek() == '|') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::OR, "||", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::OR, "||", {line_no, _idx, origin}});
       }
       break;
 
     case '+':
-      _tokens.emplace_back(td_pair_t{token_e::ADD, "+", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::ADD, "+", {line_no, _idx, origin}});
       break;
 
     case '-':
       if (peek() == '>') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::ARROW, "->", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::ARROW, "->", {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::SUB, "-", {line_no, _idx, origin}});
       }
       break;
 
     case '/':
-      _tokens.emplace_back(td_pair_t{token_e::DIV, "/", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::DIV, "/", {line_no, _idx, origin}});
       break;
 
     case '*':
-      _tokens.emplace_back(td_pair_t{token_e::MUL, "*", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::MUL, "*", {line_no, _idx, origin}});
       break;
 
     case '^':
-      _tokens.emplace_back(td_pair_t{token_e::HAT, "^", {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::HAT, "^", {line_no, _idx, origin}});
       break;
 
     case '=':
       if (peek() == '=') {
         advance();
-        _tokens.emplace_back(td_pair_t{token_e::EQ_EQ, "==", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::EQ_EQ, "==", {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{token_e::EQ, "=", {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::EQ, "=", {line_no, _idx, origin}});
       }
       break;
 
@@ -207,7 +207,7 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
         advance();
       }
 
-      _tokens.emplace_back(td_pair_t{token_e::STRING, value, {line_no, _idx}});
+      _tokens.emplace_back(td_pair_t{token_e::STRING, value, {line_no, _idx, origin}});
       break;
     }
     default:
@@ -229,10 +229,10 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
         if (is_float) {
           _tokens.emplace_back(
-              td_pair_t{token_e::FLOAT, item, {line_no, _idx}});
+              td_pair_t{token_e::FLOAT, item, {line_no, _idx, origin}});
         } else {
           _tokens.emplace_back(
-              td_pair_t{token_e::INTEGER, item, {line_no, _idx}});
+              td_pair_t{token_e::INTEGER, item, {line_no, _idx, origin}});
         }
         break;
       }
@@ -246,9 +246,9 @@ std::vector<td_pair_t> lexer_c::lex(size_t line_no, std::string line) {
 
       word += _current_line[_idx];
       if (_reserved.find(word) == _reserved.end()) {
-        _tokens.emplace_back(td_pair_t{token_e::ID, word, {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{token_e::ID, word, {line_no, _idx, origin}});
       } else {
-        _tokens.emplace_back(td_pair_t{_reserved[word], word, {line_no, _idx}});
+        _tokens.emplace_back(td_pair_t{_reserved[word], word, {line_no, _idx, origin}});
       }
       break;
     }

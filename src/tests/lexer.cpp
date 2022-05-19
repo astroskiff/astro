@@ -71,7 +71,7 @@ TEST(lexer_tests, all) {
 
   for (auto &tc : tcs) {
     compiler::front::lexer_c lexer;
-    auto result = lexer.lex(0, tc.input);
+    auto result = lexer.lex(0, tc.input, "filename");
     CHECK_EQUAL_TEXT(tc.expected.size(), result.size(),
                      "Size of resulting vector unexpected");
     for (size_t i = 0; i < tc.expected.size(); i++) {

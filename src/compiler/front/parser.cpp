@@ -34,14 +34,14 @@ read_and_lex_file(const std::string &file) {
       return {};
     }
 
-    auto tokens = lexer.lex(line, line_data);
+    auto tokens = lexer.lex(line, line_data, file);
     result.insert(result.end(), tokens.begin(), tokens.end());
   }
   return {result, file_data};
 }
 
-td_pair_t error_token = {token_e::ERT, {}, {0, 0}};
-td_pair_t end_of_stream = {token_e::EOS, {}, {0, 0}};
+td_pair_t error_token = {token_e::ERT, {}, {0, 0, {}}};
+td_pair_t end_of_stream = {token_e::EOS, {}, {0, 0, {}}};
 
 std::unordered_map<token_e, parser_c::precedence_e> precedences = {
     {token_e::EQ, parser_c::precedence_e::ASSIGN},
@@ -166,7 +166,7 @@ void parser_c::die(uint64_t error_no, std::string error, bool basic_error) {
   } else {
     reporter.marked_report(compiler::shared::marked_source_report_c(
         compiler::shared::report_origin_e::PARSER,
-        compiler::shared::level_e::ERROR, error, _source_name,
+        compiler::shared::level_e::ERROR, error,
         current_td_pair().location, error_no));
   }
 

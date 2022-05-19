@@ -21,7 +21,8 @@ public:
   //! \brief Lex a string and get a series of token/data pairs
   //! \param line_no The line number of the sting
   //! \param line The line to tokenize
-  std::vector<td_pair_t> lex(size_t line_no, std::string line);
+  //! \param origin The origin file
+  std::vector<td_pair_t> lex(size_t line_no, std::string line, std::string origin);
 
 private:
   std::vector<td_pair_t> _tokens;

@@ -8,7 +8,7 @@ namespace front {
 
 std::string token_to_str(const td_pair_t &td) {
   auto show = [](const std::string &data,
-                 const shared::location_c loc) -> std::string {
+                 const compiler::shared::location_c loc) -> std::string {
     return data + "[" + std::to_string(loc.line) + ", " +
            std::to_string(loc.col) + "]";
   };
@@ -120,7 +120,7 @@ std::string token_to_str(const td_pair_t &td) {
   case token_e::EOS:
     return "EOS";
   }
-  return show("UNKNOWN", {0, 0});
+  return show("UNKNOWN", {0, 0, {}});
 }
 
 } // namespace front

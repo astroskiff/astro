@@ -32,7 +32,7 @@ private:
   std::unordered_map<std::string, shared::page_c> &_pages;
   std::vector<ir::ir_instruction_c *> _resulting_instructions;
 
-  void die(uint64_t error_no, std::string error, bool basic_error = false);
+  void die(node_c *node, uint64_t error_no, std::string error, bool basic_error = false);
 
   bool _sa_okay{true};
 
