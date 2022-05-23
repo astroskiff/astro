@@ -14,7 +14,7 @@ class ir_translator_c;
 
 class ir_instruction_c {
 public:
-  ~ir_instruction_c() = default;
+  virtual ~ir_instruction_c() = default;
   virtual void visit(ir_translator_c &translator) = 0;
 };
 

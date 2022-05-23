@@ -1,0 +1,4 @@
+
+fn main(lhs:int, lhs:int) -> int {
+  return 0;
+}

@@ -58,7 +58,7 @@ compile_project(const targets_e target,
       free_nodes(instruction);
     }
     std::cerr << "Semantic analysis failed" << std::endl;
-    return {};
+    std::exit(EXIT_FAILURE);
   }
 
 

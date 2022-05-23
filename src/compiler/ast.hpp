@@ -20,6 +20,8 @@ extern void free_nodes(node_c *node);
 
 enum class data_type_e { UNKNOWN = 0, INT, FLOAT, STRING, USER_DECL };
 
+extern data_type_e string_to_data_type(const std::string &type_name);
+
 extern data_type_e data_type_from_string(const std::string &data);
 
 enum class node_type_e {
@@ -84,10 +86,10 @@ public:
       : node_c(node_type_e::VARIABLE, loc, data) {}
   variable_c(const shared::location_c &loc, const std::string data,
              const std::string type)
-      : node_c(node_type_e::VARIABLE, loc, data), type_name(type) {}
+      : node_c(node_type_e::VARIABLE, loc, data), type_name(type), data_type(data_type_from_string(type)) {}
 
   std::string type_name;
-  data_type_e type;
+  data_type_e data_type;
 };
 
 class for_loop_c : public node_c {
@@ -121,9 +123,10 @@ public:
                   const std::string return_type_name,
                   const shared::location_c &return_type_loc)
       : node_c(node_type_e::FN, loc, name), body(body), params(params),
-        return_type(return_type_name), return_type_loc(return_type_loc) {}
+        return_type(return_type_name), data_type(data_type_from_string(return_type)), return_type_loc(return_type_loc) {}
 
   std::string return_type;
+  data_type_e data_type;
   shared::location_c return_type_loc;
   std::vector<node_c *> params;
   std::vector<node_c *> body;

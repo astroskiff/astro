@@ -4,6 +4,7 @@
 #include "compiler/ast.hpp"
 #include "compiler/middle/ir.hpp"
 #include "compiler/shared/page.hpp"
+#include "compiler/middle/analysis/scoped_symbol_table.hpp"
 
 #include <string>
 #include <tuple>
@@ -31,12 +32,17 @@ public:
 private:
   std::unordered_map<std::string, shared::page_c> &_pages;
   std::vector<ir::ir_instruction_c *> _resulting_instructions;
+  analysis::scoped_symbol_table_c _symbol_table;
 
   void die(node_c *node, uint64_t error_no, std::string error, bool basic_error = false);
 
   bool _sa_okay{true};
 
   void analyze_node(node_c * node);
+
+  void analyze_function(function_node_c * fn);
+  void build_function_ir(function_node_c * fn);
+
 };
 
 } // namespace middle

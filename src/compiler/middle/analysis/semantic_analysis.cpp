@@ -12,12 +12,19 @@ semantic_analysis_c::semantic_analysis_c(
 
 std::tuple<bool, std::vector<ir::ir_instruction_c *>>
 semantic_analysis_c::analyze(const std::vector<node_c *> &instructions) {
-  // Iterate over all instructions given
-  // Have them visit this object
-  // Each item visiting will be analyzed with the resulting IR
-  //    being generated.
 
-  return {false, {}};
+  for(auto &ins : instructions) {
+    analyze_node(ins);
+  }
+ 
+  if(!_sa_okay) {
+    for(auto &ins : _resulting_instructions) {
+      delete ins;
+    }
+    return {false, {}};
+  }
+
+  return {true, _resulting_instructions};
 }
 
 void semantic_analysis_c::die(node_c *node, uint64_t error_no, std::string error, bool basic_error)
@@ -46,7 +53,9 @@ void semantic_analysis_c::analyze_node(node_c *node)
   }
 
   switch(node->type) {
-    case node_type_e::FN: { break; }
+    case node_type_e::FN: {
+      analyze_function(reinterpret_cast<compiler::function_node_c*>(node));
+    }
     case node_type_e::CALL: { break; }
     case node_type_e::ASM: { break; }
     case node_type_e::LET: { break; }
@@ -66,6 +75,65 @@ void semantic_analysis_c::analyze_node(node_c *node)
       return;
     }
   }
+}
+
+void semantic_analysis_c::analyze_function(function_node_c * fn)
+{
+  // Prepare data for table representation of the function
+  //
+  std::vector<analysis::function_c::param_t> params;
+  for(auto &param : fn->params) {
+    auto p = reinterpret_cast<compiler::variable_c*>(param);
+    params.push_back({
+      p->data,
+      {p->data_type}
+    });
+  }
+
+  //  Add the function to the table
+  //
+  if(auto scope = _symbol_table.get_current_scope()) {
+    scope->add(fn->data, new analysis::function_c(fn->data, params, fn->data_type));
+  }
+
+  //  Enter a new scope for the function
+  //
+  _symbol_table.new_scope();
+
+  //  Add the parameters to the scope
+  //
+  if(auto scope = _symbol_table.get_current_scope()) {
+    for(auto &param : params) {
+      if(scope->find(param.name)) {
+        die(fn, 
+            0, 
+            "Function contains multiple parameters with same name : " + param.name);
+        return;
+      }
+      scope->add(param.name, new analysis::type_c(param.type));
+    }
+  }
+
+  //  Generate IR for function start
+  //
+  build_function_ir(fn);
+
+  //  Iterate over the function body and build it
+  //
+  for(auto &el : fn->body) {
+    analyze_node(el);
+  }
+
+  //  Leave the function scope
+  //
+  _symbol_table.pop_scope();
+}
+
+void semantic_analysis_c::build_function_ir(function_node_c * fn)
+{
+  // -- Create label for function
+  // -- Create 'assign' and 'pop' statements for parameters
+  // > See middle::README.md
 }
 
 } // namespace middle

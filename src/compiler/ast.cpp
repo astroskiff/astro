@@ -4,6 +4,21 @@
 
 namespace compiler {
 
+
+data_type_e string_to_data_type(const std::string &type_name)
+{
+  if (type_name == "int") {
+    return data_type_e::INT;
+  }
+  if (type_name == "float") {
+    return data_type_e::FLOAT;
+  }
+  if (type_name == "str") {
+    return data_type_e::STRING;
+  }
+  return data_type_e::USER_DECL;
+}
+
 void display_expr_tree(const std::string &prefix, node_c *n, bool is_left) {
   if (!n) {
     return;
